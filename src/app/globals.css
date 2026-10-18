@@ -1,0 +1,158 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-gold: var(--gold);
+  --color-gold-foreground: var(--gold-foreground);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  /* Batik Bu Mien — modern heritage: cream, brown, terracotta, gold */
+  --radius: 0.625rem;
+  --background: #FAF3E5;            /* cream */
+  --foreground: #2B1A0E;            /* dark espresso brown */
+  --card: #FFF9EE;                  /* warm white cream */
+  --card-foreground: #2B1A0E;
+  --popover: #FFF9EE;
+  --popover-foreground: #2B1A0E;
+  --primary: #6B3F1D;               /* batik brown */
+  --primary-foreground: #FAF3E5;
+  --secondary: #E8D6B5;             /* tan */
+  --secondary-foreground: #4A2E14;
+  --muted: #EFE2CB;                 /* soft cream */
+  --muted-foreground: #8A6B4A;      /* warm taupe */
+  --accent: #B5532A;                /* terracotta */
+  --accent-foreground: #FFF9EE;
+  --gold: #C8A04A;                  /* gold accent */
+  --gold-foreground: #2B1A0E;
+  --destructive: #B33A2A;
+  --border: #D9C19B;                /* tan border */
+  --input: #E6D6B6;
+  --ring: #B5532A;
+  --chart-1: #6B3F1D;               /* brown */
+  --chart-2: #B5532A;               /* terracotta */
+  --chart-3: #C8A04A;               /* gold */
+  --chart-4: #8A6B4A;               /* taupe */
+  --chart-5: #4A2E14;               /* espresso */
+  --sidebar: #F5E9CF;
+  --sidebar-foreground: #2B1A0E;
+  --sidebar-primary: #6B3F1D;
+  --sidebar-primary-foreground: #FAF3E5;
+  --sidebar-accent: #EAD9B8;
+  --sidebar-accent-foreground: #2B1A0E;
+  --sidebar-border: #D9C19B;
+  --sidebar-ring: #B5532A;
+}
+
+.dark {
+  --background: #1F140A;             /* dark espresso */
+  --foreground: #FAF3E5;
+  --card: #2A1B0F;
+  --card-foreground: #FAF3E5;
+  --popover: #2A1B0F;
+  --popover-foreground: #FAF3E5;
+  --primary: #E8D6B5;
+  --primary-foreground: #2B1A0E;
+  --secondary: #3A2616;
+  --secondary-foreground: #FAF3E5;
+  --muted: #3A2616;
+  --muted-foreground: #C8A04A;
+  --accent: #B5532A;
+  --accent-foreground: #FAF3E5;
+  --gold: #C8A04A;
+  --gold-foreground: #1F140A;
+  --destructive: #B33A2A;
+  --border: #4A2E14;
+  --input: #3A2616;
+  --ring: #C8A04A;
+  --chart-1: #E8D6B5;
+  --chart-2: #B5532A;
+  --chart-3: #C8A04A;
+  --chart-4: #8A6B4A;
+  --chart-5: #FAF3E5;
+  --sidebar: #1F140A;
+  --sidebar-foreground: #FAF3E5;
+  --sidebar-primary: #C8A04A;
+  --sidebar-primary-foreground: #1F140A;
+  --sidebar-accent: #3A2616;
+  --sidebar-accent-foreground: #FAF3E5;
+  --sidebar-border: #4A2E14;
+  --sidebar-ring: #C8A04A;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "ss01";
+  }
+}
+
+/* Batik-inspired subtle pattern utility */
+.batik-pattern {
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(107, 63, 29, 0.08) 1px, transparent 0);
+  background-size: 22px 22px;
+}
+
+.batik-divider {
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  height: 1px;
+}
+
+/* Custom scrollbar for long lists */
+.scroll-soft::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scroll-soft::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scroll-soft::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+.scroll-soft::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
