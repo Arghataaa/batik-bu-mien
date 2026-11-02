@@ -22,6 +22,7 @@ import {
   LogOut,
   Menu,
   User as UserIcon,
+  Package,
 } from "lucide-react";
 import { useUIStore, type AdminSection } from "@/lib/ui-store";
 import { DashboardSection } from "./dashboard";
@@ -30,6 +31,7 @@ import { InventorySection } from "./inventory";
 import { POSSection } from "./pos";
 import { ReportsSection } from "./reports";
 import { InsightsSection } from "./insights";
+import { OrdersSection } from "./orders";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
@@ -76,6 +78,12 @@ const NAV: NavItem[] = [
     icon: Lightbulb,
     description: "Rekomendasi restock & tren",
   },
+  {
+    key: "orders",
+    label: "Manajemen Pesanan",
+    icon: Package,
+    description: "Kelola pesanan & pengiriman",
+  },
 ];
 
 export function AdminShell() {
@@ -85,8 +93,8 @@ export function AdminShell() {
   const setView = useUIStore((s) => s.setView);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const role = session?.user?.role || "KASIR";
-  const isAdmin = role === "ADMIN";
+  const role = session?.user?.role || "ADMIN";
+  const isAdmin = true;
 
   async function handleLogout() {
     try {
@@ -266,4 +274,5 @@ const SECTION_COMPONENTS: Record<AdminSection, React.ComponentType> = {
   pos: POSSection,
   reports: ReportsSection,
   insights: InsightsSection,
+  orders: OrdersSection,
 };

@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useUIStore } from "@/lib/ui-store";
 import { Shirt } from "lucide-react";
+import { CartDrawer } from "@/components/shop/cart-drawer";
 
 export function LandingNavbar() {
   const openLogin = useUIStore((s) => s.openLogin);
@@ -34,16 +36,13 @@ export function LandingNavbar() {
           </a>
         </nav>
         <div className="flex items-center gap-2">
+          <CartDrawer />
           <Button
-            variant="outline"
             size="sm"
             onClick={openLogin}
-            className="hidden sm:inline-flex"
+            className="bg-accent text-accent-foreground hover:bg-accent/90"
           >
             Masuk Admin
-          </Button>
-          <Button size="sm" onClick={openLogin} className="bg-accent text-accent-foreground hover:bg-accent/90">
-            Masuk
           </Button>
         </div>
       </div>

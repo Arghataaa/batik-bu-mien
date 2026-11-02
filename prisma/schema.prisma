@@ -8,7 +8,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -129,6 +129,83 @@ model Sale {
 
   @@index([createdAt])
   @@index([paymentMethod])
+}
+
+model Order {
+  id              String   @id @default(cuid())
+  orderNumber     String   @unique
+  customerName    String
+  customerPhone   String
+  customerEmail   String
+  province        String
+  city            String
+  district        String
+  village         String
+  postalCode      String
+  address         String
+  note            String?
+  subtotal        Int
+  shippingCost    Int      @default(0)
+  discount        Int      @default(0)
+  total           Int
+  paymentMethod   String   @default("MIDTRANS")
+  paymentStatus   String   @default("PENDING_SHIPPING")
+  orderStatus     String   @default("WAITING_SHIPPING_CONFIRMATION")
+  paymentOrderId  String?  @unique
+  snapToken       String?
+  trackingToken   String   @unique @default(cuid())
+  courier         String?
+  trackingNumber  String?
+  adminNote       String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  items           OrderItem[]
+  statusHistory   OrderStatusHistory[]
+
+  @@index([customerPhone])
+  @@index([paymentStatus])
+  @@index([orderStatus])
+}
+
+model OrderItem {
+  id           String   @id @default(cuid())
+  orderId      String
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId    String
+  variantId    String
+  name         String
+  sku          String
+  variantLabel String?
+  price        Int
+  quantity     Int
+  subtotal     Int
+}
+
+model OrderStatusHistory {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    String
+  note      String?
+  createdAt DateTime @default(now())
+
+  @@index([orderId, createdAt])
+}
+
+model ShippingSetting {
+  id              String   @id @default("default")
+  storeName       String   @default("Batik Bu Mien")
+  phone           String?
+  address         String?
+  province        String?
+  provinceId      String?
+  city            String?
+  cityId          String?
+  district        String?
+  districtId      String?
+  postalCode      String?
+  biteshipAreaId  String?  @map("biteshipAreaId")
+  updatedAt       DateTime @updatedAt
 }
 
 model SaleItem {

@@ -18,10 +18,17 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
         const email = credentials.email.toLowerCase().trim();
+        console.log('[AUTH] Login attempt:', email);
         const user = await db.user.findUnique({ where: { email } });
-        if (!user) return null;
+        if (!user) {
+          console.log('[AUTH] User not found:', email);
+          return null;
+        }
+        console.log('[AUTH] User found, checking password...');
         const ok = await bcrypt.compare(credentials.password, user.passwordHash);
+        console.log('[AUTH] Password match:', ok);
         if (!ok) return null;
+        console.log('[AUTH] Login success:', email);
         return {
           id: user.id,
           email: user.email,

@@ -12,7 +12,8 @@ export type AdminSection =
   | "inventory"
   | "pos"
   | "reports"
-  | "insights";
+  | "insights"
+  | "orders";
 
 type UIState = {
   view: View;

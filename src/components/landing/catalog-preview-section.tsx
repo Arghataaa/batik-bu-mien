@@ -1,10 +1,32 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { formatRupiah } from "@/lib/format";
-import { Tag } from "lucide-react";
+import { Tag, ShoppingCart } from "lucide-react";
+import { useCart } from "@/components/shop/cart-provider";
+import { toast } from "sonner";
+
+type DBVariant = {
+  id: string;
+  sku: string;
+  size?: string | null;
+  color?: string | null;
+  motif?: string | null;
+  stock: number;
+};
+
+type DBProduct = {
+  id: string;
+  name: string;
+  price: number;
+  imageUrl?: string | null;
+  category?: { name: string };
+  variants: DBVariant[];
+};
 
 type SampleProduct = {
   name: string;
@@ -14,8 +36,6 @@ type SampleProduct = {
   alt: string;
 };
 
-// STATIC showcase samples — product APIs require auth, so the public
-// landing page does NOT call them. These illustrate the brand catalog.
 const samples: SampleProduct[] = [
   {
     name: "Kemeja Batik Kawung — Cokelat",
@@ -62,6 +82,22 @@ const samples: SampleProduct[] = [
 ];
 
 export function CatalogPreviewSection() {
+  const [dbProducts, setDbProducts] = useState<DBProduct[]>([]);
+  const cart = useCart();
+
+  useEffect(() => {
+    fetch("/api/store/products")
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setDbProducts(data);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const hasDbProducts = dbProducts.length > 0;
+
   return (
     <section id="katalog" className="border-b border-border bg-card/40">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
@@ -73,45 +109,130 @@ export function CatalogPreviewSection() {
             Pilihan Favorit Pelanggan
           </h2>
           <p className="mt-3 text-muted-foreground">
-            Contoh produk dari koleksi kami. Harga ilustrasi; ketersediaan
-            terbaru bisa dilihat setelah masuk admin.
+            Batik siap pakai berkualitas langsung dari pengrajin Bu Mien.
           </p>
         </div>
 
         <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {samples.map((p, i) => (
-            <motion.div
-              key={p.name}
-              initial={{ opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.45, delay: i * 0.05 }}
-            >
-              <Card className="group overflow-hidden p-0 py-0 transition-all hover:-translate-y-1 hover:shadow-md">
-                <div className="aspect-square overflow-hidden bg-secondary">
-                  { }
-                  <img
-                    src={p.image}
-                    alt={p.alt}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="space-y-2 p-4">
-                  <div className="flex items-center justify-between gap-2">
-                    <Badge variant="secondary" className="text-[10px]">
-                      {p.category}
-                    </Badge>
-                    <Tag className="h-3.5 w-3.5 text-muted-foreground" />
-                  </div>
-                  <h3 className="font-medium leading-snug">{p.name}</h3>
-                  <p className="text-sm font-semibold text-accent">
-                    {formatRupiah(p.price)}
-                  </p>
-                </div>
-              </Card>
-            </motion.div>
-          ))}
+          {hasDbProducts
+            ? dbProducts.map((p, i) => {
+                const variant = p.variants[0];
+                const add = () => {
+                  if (!variant) {
+                    toast.error("Stok habis");
+                    return;
+                  }
+                  cart.add({
+                    productId: p.id,
+                    variantId: variant.id,
+                    name: p.name,
+                    sku: variant.sku,
+                    price: p.price,
+                    imageUrl: p.imageUrl || "/landing/kemeja-batik.png",
+                    variantLabel: [variant.size, variant.color, variant.motif].filter(Boolean).join(" / "),
+                    quantity: 1,
+                    stock: variant.stock,
+                  });
+                  toast.success("Ditambahkan ke keranjang");
+                };
+
+                return (
+                  <motion.div
+                    key={p.id}
+                    initial={{ opacity: 0, y: 18 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-80px" }}
+                    transition={{ duration: 0.45, delay: i * 0.05 }}
+                  >
+                    <Card className="group overflow-hidden p-0 py-0 transition-all hover:-translate-y-1 hover:shadow-md flex flex-col h-full">
+                      <div className="aspect-square overflow-hidden bg-secondary">
+                        <img
+                          src={p.imageUrl || "/landing/kemeja-batik.png"}
+                          alt={p.name}
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          loading="lazy"
+                        />
+                      </div>
+                      <div className="space-y-2 p-4 flex-1 flex flex-col">
+                        <div className="flex items-center justify-between gap-2">
+                          <Badge variant="secondary" className="text-[10px]">
+                            {p.category?.name || "Batik"}
+                          </Badge>
+                          <Tag className="h-3.5 w-3.5 text-muted-foreground" />
+                        </div>
+                        <h3 className="font-medium leading-snug">{p.name}</h3>
+                        <p className="text-sm font-semibold text-accent">
+                          {formatRupiah(p.price)}
+                        </p>
+                        <Button
+                          size="sm"
+                          onClick={add}
+                          className="mt-auto gap-2 w-full"
+                        >
+                          <ShoppingCart className="h-4 w-4" />
+                          Tambah ke Keranjang
+                        </Button>
+                      </div>
+                    </Card>
+                  </motion.div>
+                );
+              })
+            : samples.map((p, i) => {
+                const add = () => {
+                  cart.add({
+                    productId: `sample-${i}`,
+                    variantId: `sample-${i}-default`,
+                    name: p.name,
+                    sku: `SAMPLE-${i}`,
+                    price: p.price,
+                    imageUrl: p.image,
+                    quantity: 1,
+                    stock: 999,
+                  });
+                  toast.success("Ditambahkan ke keranjang");
+                };
+
+                return (
+                  <motion.div
+                    key={p.name}
+                    initial={{ opacity: 0, y: 18 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-80px" }}
+                    transition={{ duration: 0.45, delay: i * 0.05 }}
+                  >
+                    <Card className="group overflow-hidden p-0 py-0 transition-all hover:-translate-y-1 hover:shadow-md flex flex-col h-full">
+                      <div className="aspect-square overflow-hidden bg-secondary">
+                        <img
+                          src={p.image}
+                          alt={p.alt}
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          loading="lazy"
+                        />
+                      </div>
+                      <div className="space-y-2 p-4 flex-1 flex flex-col">
+                        <div className="flex items-center justify-between gap-2">
+                          <Badge variant="secondary" className="text-[10px]">
+                            {p.category}
+                          </Badge>
+                          <Tag className="h-3.5 w-3.5 text-muted-foreground" />
+                        </div>
+                        <h3 className="font-medium leading-snug">{p.name}</h3>
+                        <p className="text-sm font-semibold text-accent">
+                          {formatRupiah(p.price)}
+                        </p>
+                        <Button
+                          size="sm"
+                          onClick={add}
+                          className="mt-auto gap-2 w-full"
+                        >
+                          <ShoppingCart className="h-4 w-4" />
+                          Tambah ke Keranjang
+                        </Button>
+                      </div>
+                    </Card>
+                  </motion.div>
+                );
+              })}
         </div>
       </div>
     </section>

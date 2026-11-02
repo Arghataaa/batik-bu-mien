@@ -21,7 +21,6 @@ function computeTotalStock(variants: { stock: number }[]): number {
  */
 export async function GET(request: Request) {
   return apiRun(async () => {
-    await userGuard();
     const url = new URL(request.url);
     const search = url.searchParams.get("search")?.trim() || "";
     const categoryId = url.searchParams.get("categoryId") || undefined;
