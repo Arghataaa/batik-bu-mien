@@ -1,8 +1,3 @@
-// Batik Bu Mien — Prisma schema (SQLite)
-// Ready-to-wear batik products: kemeja, daster, sarung, sorban, blangkon, dll.
-// Supports flexible categories, optional product variants (size/color/motif),
-// atomic stock movements, and snapshot-based sales history.
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,14 +8,13 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  name         String
-  passwordHash String
-  role         String   @default("ADMIN") // ADMIN | KASIR
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
+  id             String          @id @default(cuid())
+  email          String          @unique
+  name           String
+  passwordHash   String
+  role           String          @default("ADMIN")
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
   sales          Sale[]
   stockMovements StockMovement[]
 }
@@ -38,14 +32,14 @@ model Category {
 }
 
 model Supplier {
-  id            String          @id @default(cuid())
-  name          String
-  contact      String?
-  phone         String?
-  address       String?
-  notes         String?
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  id             String          @id @default(cuid())
+  name           String
+  contact        String?
+  phone          String?
+  address        String?
+  notes          String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
   stockMovements StockMovement[]
 }
 
@@ -54,16 +48,17 @@ model Product {
   name              String
   sku               String           @unique
   categoryId        String
-  category          Category         @relation(fields: [categoryId], references: [id])
   description       String?
   imageUrl          String?
-  price             Int              // selling price (Rupiah, snapshot source)
-  cost              Int?             // modal per unit (optional)
+  price             Int
+  cost              Int?
   active            Boolean          @default(true)
   lowStockThreshold Int              @default(5)
   hasVariants       Boolean          @default(false)
+  weight            Int              @default(250)
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
+  category          Category         @relation(fields: [categoryId], references: [id])
   variants          ProductVariant[]
   saleItems         SaleItem[]
   stockMovements    StockMovement[]
@@ -73,37 +68,38 @@ model Product {
 }
 
 model ProductVariant {
-  id        String           @id @default(cuid())
-  productId String
-  product   Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
-  sku       String           @unique
-  size      String?
-  color     String?
-  motif     String?
-  stock     Int              @default(0)
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
-  saleItems SaleItem[]
+  id             String          @id @default(cuid())
+  productId      String
+  sku            String          @unique
+  size           String?
+  color          String?
+  motif          String?
+  stock          Int             @default(0)
+  weight         Int             @default(250)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  product        Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  saleItems      SaleItem[]
   stockMovements StockMovement[]
 
   @@index([productId])
 }
 
 model StockMovement {
-  id         String   @id @default(cuid())
-  productId   String
-  product     Product  @relation(fields: [productId], references: [id])
-  variantId   String?
-  variant     ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
-  type       String   // IN | OUT | ADJUST
-  quantity   Int      // signed: positive IN, negative OUT/ADJUST delta
+  id         String          @id @default(cuid())
+  productId  String
+  variantId  String?
+  type       String
+  quantity   Int
   reason     String?
   supplierId String?
-  supplier   Supplier? @relation(fields: [supplierId], references: [id])
   saleId     String?
   userId     String?
-  user       User?    @relation(fields: [userId], references: [id])
-  createdAt  DateTime @default(now())
+  createdAt  DateTime        @default(now())
+  product    Product         @relation(fields: [productId], references: [id])
+  supplier   Supplier?       @relation(fields: [supplierId], references: [id])
+  user       User?           @relation(fields: [userId], references: [id])
+  variant    ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
 
   @@index([productId])
   @@index([variantId])
@@ -114,17 +110,17 @@ model StockMovement {
 model Sale {
   id            String     @id @default(cuid())
   invoiceNo     String     @unique
-  total         Int        // grand total (snapshot)
-  totalCost     Int        @default(0) // cost of goods (snapshot)
-  totalProfit   Int        @default(0) // total - totalCost
-  paymentMethod String     @default("CASH") // CASH | QRIS | DEBIT | TRANSFER
+  total         Int
+  totalCost     Int        @default(0)
+  totalProfit   Int        @default(0)
+  paymentMethod String     @default("CASH")
   paidAmount    Int        @default(0)
   changeAmount  Int        @default(0)
   userId        String?
-  user          User?      @relation(fields: [userId], references: [id])
   customerName  String?
   note          String?
   createdAt     DateTime   @default(now())
+  user          User?      @relation(fields: [userId], references: [id])
   items         SaleItem[]
 
   @@index([createdAt])
@@ -132,35 +128,36 @@ model Sale {
 }
 
 model Order {
-  id              String   @id @default(cuid())
-  orderNumber     String   @unique
-  customerName    String
-  customerPhone   String
-  customerEmail   String
-  province        String
-  city            String
-  district        String
-  village         String
-  postalCode      String
-  address         String
-  note            String?
-  subtotal        Int
-  shippingCost    Int      @default(0)
-  discount        Int      @default(0)
-  total           Int
-  paymentMethod   String   @default("MIDTRANS")
-  paymentStatus   String   @default("PENDING_SHIPPING")
-  orderStatus     String   @default("WAITING_SHIPPING_CONFIRMATION")
-  paymentOrderId  String?  @unique
-  snapToken       String?
-  trackingToken   String   @unique @default(cuid())
-  courier         String?
-  trackingNumber  String?
-  adminNote       String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  items           OrderItem[]
-  statusHistory   OrderStatusHistory[]
+  id             String               @id @default(cuid())
+  orderNumber    String               @unique
+  customerName   String
+  customerPhone  String
+  customerEmail  String
+  province       String
+  city           String
+  district       String
+  village        String
+  postalCode     String
+  address        String
+  note           String?
+  subtotal       Int
+  shippingCost   Int                  @default(0)
+  discount       Int                  @default(0)
+  total          Int
+  totalWeight    Int                  @default(250)
+  paymentMethod  String               @default("MIDTRANS")
+  paymentStatus  String               @default("PENDING_SHIPPING")
+  orderStatus    String               @default("WAITING_SHIPPING_CONFIRMATION")
+  paymentOrderId String?              @unique
+  snapToken      String?
+  trackingToken  String               @unique @default(cuid())
+  courier        String?
+  trackingNumber String?
+  adminNote      String?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  items          OrderItem[]
+  statusHistory  OrderStatusHistory[]
 
   @@index([customerPhone])
   @@index([paymentStatus])
@@ -168,9 +165,8 @@ model Order {
 }
 
 model OrderItem {
-  id           String   @id @default(cuid())
+  id           String  @id @default(cuid())
   orderId      String
-  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId    String
   variantId    String
   name         String
@@ -179,50 +175,51 @@ model OrderItem {
   price        Int
   quantity     Int
   subtotal     Int
+  order        Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
 model OrderStatusHistory {
   id        String   @id @default(cuid())
   orderId   String
-  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   status    String
   note      String?
   createdAt DateTime @default(now())
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId, createdAt])
 }
 
 model ShippingSetting {
-  id              String   @id @default("default")
-  storeName       String   @default("Batik Bu Mien")
-  phone           String?
-  address         String?
-  province        String?
-  provinceId      String?
-  city            String?
-  cityId          String?
-  district        String?
-  districtId      String?
-  postalCode      String?
-  biteshipAreaId  String?  @map("biteshipAreaId")
-  updatedAt       DateTime @updatedAt
+  id             String   @id @default("default")
+  storeName      String   @default("Batik Bu Mien")
+  phone          String?
+  address        String?
+  province       String?
+  provinceId     String?
+  city           String?
+  cityId         String?
+  district       String?
+  districtId     String?
+  postalCode     String?
+  biteshipAreaId String?  @map("biteshipAreaId")
+  updatedAt      DateTime @updatedAt
 }
 
 model SaleItem {
-  id           String           @id @default(cuid())
+  id           String          @id @default(cuid())
   saleId       String
-  sale         Sale             @relation(fields: [saleId], references: [id], onDelete: Cascade)
   productId    String
-  product      Product          @relation(fields: [productId], references: [id])
   variantId    String?
-  variant      ProductVariant? @relation(fields: [variantId], references: [id])
-  name         String           // snapshot product name
-  sku          String           // snapshot product/variant sku
-  variantLabel String?         // snapshot "Size M / Warna Cokelat / Motif Kawung"
-  price        Int              // snapshot selling price per unit
-  cost         Int              @default(0) // snapshot cost per unit
+  name         String
+  sku          String
+  variantLabel String?
+  price        Int
+  cost         Int             @default(0)
   quantity     Int
-  subtotal     Int              // price * quantity
+  subtotal     Int
+  product      Product         @relation(fields: [productId], references: [id])
+  sale         Sale            @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  variant      ProductVariant? @relation(fields: [variantId], references: [id])
 
   @@index([saleId])
   @@index([productId])

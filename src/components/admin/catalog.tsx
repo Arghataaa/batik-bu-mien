@@ -368,6 +368,7 @@ type FormState = {
   price: string;
   cost: string;
   lowStockThreshold: string;
+  weight: string;
   active: boolean;
   hasVariants: boolean;
   variants: ProductVariantInput[];
@@ -384,10 +385,11 @@ function buildFormState(product: Product | null): FormState {
       price: "",
       cost: "",
       lowStockThreshold: "5",
+      weight: "250",
       active: true,
       hasVariants: false,
       variants: [
-        { sku: "", size: null, color: null, motif: null, stock: 0 },
+        { sku: "", size: null, color: null, motif: null, stock: 0, weight: 250 },
       ],
     };
   }
@@ -396,10 +398,11 @@ function buildFormState(product: Product | null): FormState {
     sku: product.sku,
     categoryId: product.categoryId,
     description: product.description || "",
-    imageUrl: product.imageUrl,
+    imageUrl: product.imageUrl ?? null,
     price: String(product.price),
     cost: product.cost ? String(product.cost) : "",
     lowStockThreshold: String(product.lowStockThreshold),
+    weight: String(product.weight ?? 250),
     active: product.active,
     hasVariants: product.hasVariants,
     variants: product.variants.map((v) => ({
@@ -409,6 +412,7 @@ function buildFormState(product: Product | null): FormState {
       color: v.color ?? null,
       motif: v.motif ?? null,
       stock: v.stock,
+      weight: v.weight ?? product.weight ?? 250,
     })),
   };
 }
@@ -431,6 +435,8 @@ function ProductFormDialog(props: {
       setForm(buildFormState(editing));
       setValidation(null);
     }
+    // Dialog open/editing changes are the only times form needs reset.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, editing]);
 
   // Ensure variants array matches hasVariants state (at least 1 entry).
@@ -492,7 +498,7 @@ function ProductFormDialog(props: {
       ...p,
       variants: [
         ...p.variants,
-        { sku: "", size: "", color: "", motif: "", stock: 0 },
+        { sku: "", size: "", color: "", motif: "", stock: 0, weight: Number(p.weight) || 250 },
       ],
     }));
   }
@@ -501,7 +507,7 @@ function ProductFormDialog(props: {
       const next = p.variants.filter((_, i) => i !== idx);
       return {
         ...p,
-        variants: next.length ? next : [{ sku: "", size: "", color: "", motif: "", stock: 0 }],
+        variants: next.length ? next : [{ sku: "", size: "", color: "", motif: "", stock: 0, weight: Number(p.weight) || 250 }],
       };
     });
   }
@@ -515,6 +521,9 @@ function ProductFormDialog(props: {
     if (!Number.isFinite(price) || price <= 0)
       return setValidation("Harga jual harus > 0.");
     const cost = form.cost ? parseInt(form.cost, 10) : null;
+    const weight = Number(form.weight);
+    if (!Number.isInteger(weight) || weight <= 0)
+      return setValidation("Berat produk harus bilangan bulat positif (gram).");
 
     if (form.variants.length === 0)
       return setValidation("Minimal harus ada 1 varian.");
@@ -522,6 +531,8 @@ function ProductFormDialog(props: {
       if (!v.sku || !v.sku.trim()) return setValidation("Setiap varian wajib punya SKU.");
       if (!Number.isFinite(v.stock) || v.stock < 0)
         return setValidation("Stok varian tidak valid.");
+      if (v.weight != null && (!Number.isInteger(Number(v.weight)) || Number(v.weight) <= 0))
+        return setValidation("Berat varian harus bilangan bulat positif (gram).");
     }
 
     const payload: ProductInput = {
@@ -535,6 +546,7 @@ function ProductFormDialog(props: {
       active: form.active,
       lowStockThreshold: parseInt(form.lowStockThreshold, 10) || 5,
       hasVariants: form.hasVariants,
+      weight,
       variants: form.variants.map((v) => ({
         id: v.id,
         sku: v.sku.trim(),
@@ -542,6 +554,7 @@ function ProductFormDialog(props: {
         color: form.hasVariants ? (v.color?.trim() || null) : null,
         motif: form.hasVariants ? (v.motif?.trim() || null) : null,
         stock: Math.max(0, Math.round(v.stock || 0)),
+        weight: Number(v.weight || weight),
       })),
     };
 
@@ -653,6 +666,11 @@ function ProductFormDialog(props: {
                 placeholder="5"
               />
             </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="p-weight">Berat Produk (gram)</Label>
+              <Input id="p-weight" type="number" min={1} step={1} value={form.weight} onChange={(e) => setForm({ ...form, weight: e.target.value })} placeholder="250" required />
+              <p className="text-xs text-muted-foreground">Berat default per produk dalam gram.</p>
+            </div>
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor="p-desc">Deskripsi</Label>
               <Textarea
@@ -740,7 +758,7 @@ function ProductFormDialog(props: {
               {form.variants.map((v, i) => (
                 <div
                   key={i}
-                  className="grid items-end gap-2 rounded-md border border-border/60 bg-background p-2 sm:grid-cols-[1fr_1fr_1fr_1fr_0.8fr_auto]"
+                  className="grid items-end gap-2 rounded-md border border-border/60 bg-background p-2 sm:grid-cols-[1fr_1fr_1fr_1fr_0.7fr_0.7fr_auto]"
                 >
                   <div className="space-y-1">
                     <Label className="text-[11px]">SKU Varian</Label>
@@ -786,6 +804,18 @@ function ProductFormDialog(props: {
                       onChange={(e) =>
                         updateVariant(i, { stock: parseInt(e.target.value, 10) || 0 })
                       }
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[11px]">Berat (g)</Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      value={v.weight || ""}
+                      onChange={(e) =>
+                        updateVariant(i, { weight: parseInt(e.target.value, 10) || 0 })
+                      }
+                      placeholder="250"
                     />
                   </div>
                   {form.hasVariants && (

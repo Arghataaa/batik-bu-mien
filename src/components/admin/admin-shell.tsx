@@ -117,9 +117,7 @@ export function AdminShell() {
   const sidebar = (
     <nav className="flex h-full flex-col gap-1 p-3">
       <div className="mb-2 flex items-center gap-2.5 px-2 py-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground">
-          <Shirt className="h-5 w-5" />
-        </div>
+        <img src="/logo.png" alt="Batik Bu Mien" className="h-9 w-9 rounded-full object-cover shadow-sm" />
         <div className="flex flex-col leading-tight">
           <span className="text-sm font-semibold">Batik Bu Mien</span>
           <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">

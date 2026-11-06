@@ -27,6 +27,7 @@ export type ProductVariant = {
   color?: string | null;
   motif?: string | null;
   stock: number;
+  weight: number;
   createdAt: string;
   updatedAt: string;
 };
@@ -44,6 +45,7 @@ export type Product = {
   active: boolean;
   lowStockThreshold: number;
   hasVariants: boolean;
+  weight: number;
   variants: ProductVariant[];
   createdAt: string;
   updatedAt: string;
@@ -199,6 +201,7 @@ export type ProductVariantInput = {
   color?: string | null;
   motif?: string | null;
   stock: number;
+  weight?: number;
 };
 
 export type ProductInput = {
@@ -212,6 +215,7 @@ export type ProductInput = {
   active?: boolean;
   lowStockThreshold?: number;
   hasVariants: boolean;
+  weight?: number;
   variants: ProductVariantInput[];
 };
 

@@ -14,6 +14,7 @@ type VariantInput = {
   color?: string | null;
   motif?: string | null;
   stock?: number;
+  weight?: number;
 };
 
 function computeTotalStock(variants: { stock: number }[]): number {
@@ -42,6 +43,7 @@ function toProductOut(p: any): Product {
     active: p.active,
     lowStockThreshold: p.lowStockThreshold,
     hasVariants: p.hasVariants,
+    weight: p.weight ?? 250,
     variants: p.variants.map((v: any) => ({
       id: v.id,
       productId: v.productId,
@@ -50,6 +52,7 @@ function toProductOut(p: any): Product {
       color: v.color,
       motif: v.motif,
       stock: v.stock,
+      weight: v.weight ?? (p.weight ?? 250),
       createdAt: v.createdAt.toISOString(),
       updatedAt: v.updatedAt.toISOString(),
     })),
@@ -98,6 +101,7 @@ export async function PATCH(
       active?: boolean;
       lowStockThreshold?: number;
       hasVariants?: boolean;
+      weight?: number;
       variants?: VariantInput[];
     }>(request);
 
@@ -155,6 +159,11 @@ export async function PATCH(
       data.lowStockThreshold = t;
     }
     if (body.hasVariants != null) data.hasVariants = !!body.hasVariants;
+    if (body.weight != null) {
+      const w = Number(body.weight);
+      if (w <= 0) throw new Error("Berat produk harus > 0");
+      data.weight = Math.round(w);
+    }
 
     // Variants merge
     if (Array.isArray(body.variants)) {
@@ -205,6 +214,7 @@ export async function PATCH(
               color: v.color?.trim() || null,
               motif: v.motif?.trim() || null,
               stock: Number(v.stock ?? existingV.stock),
+              weight: v.weight != null ? Math.max(1, Math.round(Number(v.weight))) : existingV.weight,
             },
           });
         } else {
@@ -216,6 +226,7 @@ export async function PATCH(
               color: v.color?.trim() || null,
               motif: v.motif?.trim() || null,
               stock: Number(v.stock || 0),
+              weight: v.weight != null ? Math.max(1, Math.round(Number(v.weight))) : Number(data.weight ?? existing.weight ?? 250),
             },
           });
         }

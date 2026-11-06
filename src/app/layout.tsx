@@ -21,6 +21,10 @@ export const metadata: Metadata = {
     "Batik Bu Mien: toko produk batik siap pakai — kemeja batik, daster, sarung, sorban, blangkon, dan fashion batik lainnya. Warisan motif modern.",
   keywords: ["Batik Bu Mien", "batik siap pakai", "kemeja batik", "daster batik", "sarung batik", "sorban", "blangkon"],
   authors: [{ name: "Batik Bu Mien" }],
+  icons: {
+    icon: "/logo-circle.png",
+    apple: "/logo-circle.png",
+  },
 };
 
 export default function RootLayout({
@@ -36,7 +40,7 @@ export default function RootLayout({
         <Providers>
           {children}
           <Toaster />
-          <SonnerToaster richColors position="top-right" />
+          <SonnerToaster richColors position="bottom-right" />
         </Providers>
       </body>
     </html>

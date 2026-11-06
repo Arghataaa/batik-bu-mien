@@ -15,9 +15,14 @@ export async function POST(request: Request) {
     });
 
     if (!order) throw new Error("Order tidak ditemukan");
-    if (order.shippingCost === 0)
+    if (order.paymentStatus === "PAID" || ["CANCELLED", "EXPIRED", "SHIPPED", "COMPLETED"].includes(order.orderStatus))
+      throw new Error("Pesanan tidak dapat dibayar atau sudah diproses");
+    if (order.shippingCost <= 0)
       throw new Error("Biaya ongkir belum ditentukan");
-    if (order.paymentStatus !== "PENDING_SHIPPING")
+    if (order.snapToken && order.paymentStatus === "PENDING_PAYMENT") {
+      return { token: order.snapToken, redirectUrl: null };
+    }
+    if (!['PENDING_SHIPPING', 'PENDING_PAYMENT'].includes(order.paymentStatus))
       throw new Error("Status pembayaran tidak valid");
 
     const snap = new MidtransClient.Snap({

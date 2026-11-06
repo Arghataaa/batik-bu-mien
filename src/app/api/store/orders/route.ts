@@ -15,7 +15,8 @@ export async function POST(request: Request) {
     const requested = Array.isArray(body.items) ? body.items : [];
     if (!requested.length) throw new Error("Keranjang kosong");
     const order = await db.$transaction(async (tx) => {
-      const items = [];
+      const items: Array<{ productId: string; variantId: string; name: string; sku: string; variantLabel: string; price: number; quantity: number; subtotal: number }> = [];
+      let totalWeightItems = 0;
       for (const item of requested) {
         let variant = await tx.productVariant.findUnique({ where: { id: item.variantId }, include: { product: true } });
         
@@ -25,6 +26,7 @@ export async function POST(request: Request) {
           const itemName = item.name || "Kemeja Batik Kawung — Cokelat";
           const itemSku = item.sku || "SAMPLE-SKU";
           const itemLabel = item.variantLabel || "Standard";
+          const itemWeight = 250;
 
           items.push({
             productId: item.productId,
@@ -36,6 +38,7 @@ export async function POST(request: Request) {
             quantity: item.quantity,
             subtotal: itemPrice * item.quantity,
           });
+          totalWeightItems += itemWeight * item.quantity;
           continue;
         }
 
@@ -43,6 +46,8 @@ export async function POST(request: Request) {
         if (!Number.isInteger(item.quantity) || item.quantity < 1) throw new Error("Jumlah produk tidak valid");
         if (variant.stock > 0 && variant.stock < item.quantity) throw new Error(`Stok ${variant.product.name} tidak cukup`);
         
+        const effectiveWeight = variant.weight > 0 ? variant.weight : (variant.product.weight > 0 ? variant.product.weight : 250);
+
         items.push({
           productId: variant.productId,
           variantId: variant.id,
@@ -53,25 +58,34 @@ export async function POST(request: Request) {
           quantity: item.quantity,
           subtotal: variant.product.price * item.quantity,
         });
+        totalWeightItems += effectiveWeight * item.quantity;
       }
+      const PACKING_WEIGHT = 100; // Konfigurasi berat kemasan (gram)
+      const totalWeight = totalWeightItems + PACKING_WEIGHT;
       const subtotal = items.reduce((n, i) => n + i.subtotal, 0);
-      const isJogja = body.province?.toLowerCase().includes("yogyakarta") || body.city?.toLowerCase().includes("yogyakarta") || body.city?.toLowerCase().includes("bantul") || body.city?.toLowerCase().includes("sleman") || body.city?.toLowerCase().includes("kulon progo") || body.city?.toLowerCase().includes("gunung kidul");
-      const shippingCost = isJogja ? 0 : 15000;
-      const total = subtotal + shippingCost;
-      const created = await tx.order.create({ data: { orderNumber: `BBM-${Date.now()}`, customerName: body.customerName!.trim(), customerPhone: body.customerPhone!.trim(), customerEmail: body.customerEmail!.trim().toLowerCase(), province: body.province!.trim(), city: body.city!.trim(), district: body.district!.trim(), village: body.village!.trim(), postalCode: body.postalCode!.trim(), address: body.address!.trim(), note: body.note?.trim() || null, subtotal, shippingCost, discount: 0, total, paymentStatus: "PENDING_PAYMENT", orderStatus: "WAITING_PAYMENT", items: { create: items }, statusHistory: { create: { status: "WAITING_PAYMENT", note: "Menunggu pembayaran pelanggan" } } } });
+      const shippingCost = 0;
+      const total = subtotal;
+      const created = await tx.order.create({ data: { orderNumber: `BBM-${Date.now()}`, customerName: body.customerName!.trim(), customerPhone: body.customerPhone!.trim(), customerEmail: body.customerEmail!.trim().toLowerCase(), province: body.province!.trim(), city: body.city!.trim(), district: body.district!.trim(), village: body.village!.trim(), postalCode: body.postalCode!.trim(), address: body.address!.trim(), note: body.note?.trim() || null, subtotal, shippingCost, discount: 0, total, totalWeight, paymentStatus: "PENDING_SHIPPING", orderStatus: "WAITING_SHIPPING_CONFIRMATION", items: { create: items }, statusHistory: { create: { status: "WAITING_PAYMENT", note: "Pesanan diterima. Menunggu admin konfirmasi ongkos kirim." } } } });
       return created;
     }, { maxWait: 15000, timeout: 30000 });
 
-    let snapToken: string | null = null;
-    try {
-      const snap = new MidtransClient.Snap({ isProduction: process.env.MIDTRANS_IS_PRODUCTION === "true", serverKey: process.env.MIDTRANS_SERVER_KEY!, clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY! });
-      const token = await snap.createTransaction({ transaction_details: { order_id: order.orderNumber, gross_amount: order.total }, callbacks: { finish: `${process.env.NEXTAUTH_URL}/pesanan/${order.trackingToken}` } });
-      snapToken = token.token;
-      await db.order.update({ where: { id: order.id }, data: { snapToken, paymentOrderId: order.orderNumber } });
-    } catch (err) {
-      console.error("Midtrans snap skipped:", err instanceof Error ? err.message : err);
-    }
+    import("@/lib/telegram").then(({ sendTelegramMessage }) => {
+      const msg = `<b>Pesanan Baru Masuk!</b>\n\n` +
+        `No Order: <code>${order.orderNumber}</code>\n` +
+        `Nama: ${order.customerName}\n` +
+        `No Telepon: ${order.customerPhone}\n\n` +
+        `<b>Alamat Pengiriman:</b>\n` +
+        `${order.address}\n` +
+        `Kel/Desa: ${order.village}\n` +
+        `Kecamatan: ${order.district}\n` +
+        `Kota/Kab: ${order.city}\n` +
+        `Provinsi: ${order.province}\n` +
+        `Kode Pos: ${order.postalCode}\n\n` +
+        `Subtotal Produk: ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(order.subtotal)}\n\n` +
+        `Balas dengan format:\n<code>/ongkir ${order.orderNumber}</code>`;
+      sendTelegramMessage(msg);
+    });
 
-    return Response.json({ orderNumber: order.orderNumber, trackingToken: order.trackingToken, snapToken });
+    return Response.json({ orderNumber: order.orderNumber, trackingToken: order.trackingToken });
   });
 }

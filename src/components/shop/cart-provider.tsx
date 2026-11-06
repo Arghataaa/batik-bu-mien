@@ -8,8 +8,22 @@ const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
-  useEffect(() => { try { const raw = localStorage.getItem("batik-cart"); if (raw) setItems(JSON.parse(raw)); } catch {} }, []);
-  useEffect(() => { localStorage.setItem("batik-cart", JSON.stringify(items)); }, [items]);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("batik-cart");
+      if (raw) setItems(JSON.parse(raw));
+    } catch {
+      // Ignore malformed local cart and keep empty cart.
+    } finally {
+      setHydrated(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (hydrated) localStorage.setItem("batik-cart", JSON.stringify(items));
+  }, [items, hydrated]);
   const value = useMemo(() => ({
     items, count: items.reduce((n, i) => n + i.quantity, 0), total: items.reduce((n, i) => n + i.price * i.quantity, 0),
     add: (item: CartItem) => setItems(prev => { const found = prev.find(i => i.variantId === item.variantId); if (found) return prev.map(i => i.variantId === item.variantId ? { ...i, quantity: Math.min(i.quantity + item.quantity, i.stock) } : i); return [...prev, { ...item, quantity: Math.min(item.quantity, item.stock) }]; }),

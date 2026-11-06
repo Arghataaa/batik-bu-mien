@@ -17,7 +17,10 @@ export default async function OrderPage({
   const { token } = await params;
   const order = await db.order.findUnique({
     where: { trackingToken: token },
-    include: { items: true, statusHistory: { orderBy: { createdAt: "asc" } } },
+    include: {
+      items: true,
+      statusHistory: { orderBy: { createdAt: "asc" } },
+    },
   });
 
   if (!order)
@@ -32,6 +35,13 @@ export default async function OrderPage({
         <LandingFooter />
       </div>
     );
+
+  const productIds = Array.from(new Set(order.items.map((i) => i.productId)));
+  const products = await db.product.findMany({
+    where: { id: { in: productIds } },
+    select: { id: true, imageUrl: true },
+  });
+  const productMap = new Map(products.map((p) => [p.id, p.imageUrl]));
 
   const formatDate = (date: Date) =>
     new Intl.DateTimeFormat("id-ID", {
@@ -68,7 +78,7 @@ export default async function OrderPage({
                 {order.items.map((item) => (
                   <div key={item.id} className="flex gap-4 items-center">
                     <img
-                      src="/landing/kemeja-batik.png"
+                      src={productMap.get(item.productId) || "/landing/kemeja-batik.png"}
                       alt={item.name}
                       className="h-16 w-16 object-cover rounded-lg border border-[#eee1d2] bg-[#fbf6ee]"
                     />
@@ -119,7 +129,7 @@ export default async function OrderPage({
                   <span>Total</span>
                   <span>{formatRupiah(order.total)}</span>
                 </div>
-                {order.snapToken && order.paymentStatus === "PENDING_PAYMENT" && (
+                {order.snapToken && order.shippingCost > 0 && (
                    <div className="pt-4">
                       <MidtransSnap token={order.snapToken} />
                    </div>

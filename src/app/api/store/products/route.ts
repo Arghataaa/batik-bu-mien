@@ -7,12 +7,10 @@ export async function GET() {
       where: { active: true },
       include: {
         category: true,
-        variants: {
-          where: { stock: { gt: 0 } },
-        },
+        variants: true,
       },
       orderBy: { createdAt: "desc" },
-      take: 20,
+      take: 30,
     });
     return Response.json(products);
   });

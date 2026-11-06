@@ -9,6 +9,7 @@ type VariantInput = {
   color?: string | null;
   motif?: string | null;
   stock?: number;
+  weight?: number;
 };
 
 function computeTotalStock(variants: { stock: number }[]): number {
@@ -69,6 +70,7 @@ export async function GET(request: Request) {
       active: p.active,
       lowStockThreshold: p.lowStockThreshold,
       hasVariants: p.hasVariants,
+      weight: p.weight ?? 250,
       variants: p.variants.map((v) => ({
         id: v.id,
         productId: v.productId,
@@ -77,6 +79,7 @@ export async function GET(request: Request) {
         color: v.color,
         motif: v.motif,
         stock: v.stock,
+        weight: v.weight ?? (p.weight ?? 250),
         createdAt: v.createdAt.toISOString(),
         updatedAt: v.updatedAt.toISOString(),
       })),
@@ -102,6 +105,7 @@ export async function POST(request: Request) {
       active?: boolean;
       lowStockThreshold?: number;
       hasVariants?: boolean;
+      weight?: number;
       variants?: VariantInput[];
     }>(request);
 
@@ -158,6 +162,7 @@ export async function POST(request: Request) {
 
     const lowStockThreshold =
       body.lowStockThreshold != null ? Number(body.lowStockThreshold) : 5;
+    const productWeight = body.weight != null ? Math.max(1, Number(body.weight)) : 250;
     const costRaw: unknown = body.cost;
     const cost =
       typeof costRaw === "string"
@@ -180,6 +185,7 @@ export async function POST(request: Request) {
         active: body.active !== undefined ? !!body.active : true,
         lowStockThreshold,
         hasVariants,
+        weight: productWeight,
         variants: {
           create: variantsToCreate.map((v) => ({
             sku: (v.sku || "").trim(),
@@ -187,6 +193,7 @@ export async function POST(request: Request) {
             color: hasVariants ? v.color?.trim() || null : null,
             motif: hasVariants ? v.motif?.trim() || null : null,
             stock: Number(v.stock || 0),
+            weight: v.weight != null ? Math.max(1, Number(v.weight)) : productWeight,
           })),
         },
       },
@@ -231,6 +238,7 @@ export async function POST(request: Request) {
         active: refreshed!.active,
         lowStockThreshold: refreshed!.lowStockThreshold,
         hasVariants: refreshed!.hasVariants,
+        weight: refreshed!.weight ?? 250,
         variants: refreshed!.variants,
         createdAt: refreshed!.createdAt,
         updatedAt: refreshed!.updatedAt,

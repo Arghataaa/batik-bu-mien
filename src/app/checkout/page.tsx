@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +40,39 @@ export default function CheckoutPage() {
   const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [draftReady, setDraftReady] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    const form = formRef.current;
+    if (!form) return;
+    try {
+      const raw = localStorage.getItem("batik-checkout-draft");
+      if (raw) {
+        const draft = JSON.parse(raw) as Record<string, string>;
+        Object.entries(draft).forEach(([name, value]) => {
+          const field = form.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement | null;
+          if (field && typeof value === "string") field.value = value;
+        });
+      }
+    } catch {
+      // Ignore malformed draft.
+    }
+    setDraftReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!draftReady) return;
+    const saveDraft = () => {
+      const form = formRef.current;
+      if (!form) return;
+      const values = Object.fromEntries(new FormData(form).entries());
+      localStorage.setItem("batik-checkout-draft", JSON.stringify(values));
+    };
+    const form = formRef.current;
+    form?.addEventListener("input", saveDraft);
+    return () => form?.removeEventListener("input", saveDraft);
+  }, [draftReady]);
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -72,8 +105,9 @@ export default function CheckoutPage() {
         return;
       }
       cart.clear();
-      // Tambahkan sedikit delay untuk UX agar loading screen terasa saat menyiapkan pembayaran
-      await new Promise(resolve => setTimeout(resolve, 800));
+      localStorage.removeItem("batik-checkout-draft");
+      const previous = JSON.parse(localStorage.getItem("batik-order-history") || "[]") as string[];
+      localStorage.setItem("batik-order-history", JSON.stringify([data.trackingToken, ...previous.filter((token: string) => token !== data.trackingToken)].slice(0, 20)));
       router.push(`/pesanan/${data.trackingToken}`);
     } catch {
       setError("Koneksi bermasalah. Periksa internet lalu coba lagi.");
@@ -92,7 +126,7 @@ export default function CheckoutPage() {
             <p className="mt-1 text-sm text-muted-foreground">Lengkapi alamat penerima untuk melanjutkan pesanan.</p>
           </div>
 
-          <form onSubmit={submit} className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-7">
+          <form ref={formRef} onSubmit={submit} className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-7">
             <div className="space-y-5">
               <section className="rounded-xl border border-[#ead9c4] bg-white p-4 shadow-sm sm:p-6">
                 <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-[#4a3020]"><UserRound className="h-4 w-4 text-[#a7683d]" />Informasi penerima</h2>
@@ -154,16 +188,10 @@ export default function CheckoutPage() {
                 {error && <p role="alert" className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
                 <Button type="submit" disabled={loading || !cart.items.length} className="mt-4 h-11 w-full rounded-lg bg-[#744628] font-semibold text-white hover:bg-[#5c361f] disabled:opacity-60">
                   {loading ? (
-                    <div className="flex flex-col items-center justify-center py-1">
-                      <span className="flex items-center gap-2">
-                        <PackageCheck className="h-4 w-4 animate-pulse" />
-                        Menyiapkan Pembayaran...
-                      </span>
-                    </div>
-                  ) : (
-                    "Buat Pesanan"
-                  )}
+                    <span className="flex items-center gap-2"><PackageCheck className="h-4 w-4 animate-pulse" />Menyiapkan pembayaran...</span>
+                  ) : "Buat Pesanan dan Bayar"}
                 </Button>
+                <Button type="button" variant="ghost" disabled={loading} onClick={() => { if (window.confirm("Batalkan pengisian checkout? Data form akan dihapus, keranjang tetap tersimpan.")) { localStorage.removeItem("batik-checkout-draft"); formRef.current?.reset(); } }} className="mt-1 w-full text-[#754526] hover:bg-[#f4e7d6]">Batalkan Checkout</Button>
                 {loading && (
                   <p className="mt-2 text-center text-xs text-muted-foreground animate-pulse">
                     Pesanan Anda sedang diproses. Mohon tunggu sebentar.

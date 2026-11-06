@@ -22,6 +22,18 @@ export default function Home() {
     }
   }, [status, view, setView]);
 
+  // Hash listener: open login dialog when URL has #admin
+  useEffect(() => {
+    const handleHash = () => {
+      if (window.location.hash.toLowerCase() === "#admin") {
+        useUIStore.getState().openLogin();
+      }
+    };
+    handleHash();
+    window.addEventListener("hashchange", handleHash);
+    return () => window.removeEventListener("hashchange", handleHash);
+  }, []);
+
   if (status === "loading") {
     return <FullScreenSkeleton />;
   }
