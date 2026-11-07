@@ -511,12 +511,12 @@ export function CatalogPreviewSection() {
                 <div className="p-6 lg:p-8 space-y-6">
                   {/* Top Header: Badge, Code & Close Button */}
                   <header className="flex items-start justify-between gap-4">
-                    <div className="flex items-center gap-3 flex-wrap">
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold tracking-wide bg-amber-100/90 text-[#7F3619] border border-amber-200 uppercase">
-                        {detailProduct.categoryName}
-                      </span>
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-xs text-[#7A695E] font-medium">
-                        Kode: <span className="font-mono text-[#2A1A10] font-semibold tracking-wider">{currentVariant?.sku || detailProduct.sku}</span>
+                        Katalog Tradisi <span className="mx-1">•</span>
+                      </span>
+                      <span className="text-xs font-semibold text-[#9E4A28]">
+                        {detailProduct.categoryName || "Sarimbit Couple"}
                       </span>
                     </div>
 
@@ -627,17 +627,17 @@ export function CatalogPreviewSection() {
                               <div
                                 className={`h-14 rounded-xl flex flex-col items-center justify-center border font-semibold text-sm transition-all shadow-sm ${
                                   active
-                                    ? "border-[#9E4A28] bg-[#9E4A28] text-white ring-2 ring-[#9E4A28]/30 shadow-md"
+                                    ? "border-[#522E13] bg-[#522E13] text-white ring-2 ring-[#522E13]/20 shadow-md"
                                     : "border-[#E8DCCF] bg-white/90 hover:bg-white text-[#2A1A10] hover:border-[#9E4A28]"
                                 }`}
                               >
                                 <span className="text-base font-extrabold leading-none">{sizeLabel}</span>
-                                <span className={`text-[10px] mt-1 ${active ? "text-white/90" : "text-[#7A695E]"}`}>
+                                <span className={`text-[10px] mt-1 ${active ? "text-[#E8DCCF]" : "text-[#7A695E]"}`}>
                                   {v.stock <= 3 ? `Sisa ${v.stock}` : "Tersedia"}
                                 </span>
                               </div>
                               {active && (
-                                <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#3D2214] text-white rounded-full flex items-center justify-center text-xs shadow-md border-2 border-[#FBF7F0]">
+                                <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#2A1A10] text-white rounded-full flex items-center justify-center text-xs shadow-md border-2 border-[#FBF7F0]">
                                   ✓
                                 </div>
                               )}
