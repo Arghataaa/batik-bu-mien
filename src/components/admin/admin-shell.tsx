@@ -257,7 +257,7 @@ export function AdminShell() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-x-hidden p-4 sm:p-6">
+        <main className="flex-1 overflow-x-hidden p-4 sm:p-6 animate-in fade-in-50 duration-200 fill-mode-forwards scroll-smooth">
           <ActiveComponent />
         </main>
       </div>

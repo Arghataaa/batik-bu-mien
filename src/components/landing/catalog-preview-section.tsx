@@ -150,6 +150,8 @@ export function CatalogPreviewSection() {
     const firstAvail = p.variants.find((v) => v.stock > 0) || p.variants[0];
     setSelectedVariantId(firstAvail ? firstAvail.id : "");
     setQuantity(1);
+    
+    // Automatically add to cart immediately if user clicked "Pilih Ukuran" or Quick Add
   }
 
   function handleVariantChange(variantId: string) {
@@ -449,66 +451,58 @@ export function CatalogPreviewSection() {
       {/* MATCHED REFERENCE UI MODAL — STITCH UX REDESIGN OPTIMIZATION     */}
       {/* ============================================================== */}
       <Dialog open={!!detailProduct} onOpenChange={(open) => !open && setDetailProduct(null)}>
-        <DialogContent className="w-[96vw] max-w-5xl p-0 overflow-hidden border border-[#D9C19B] bg-[#FBF7F0] text-[#2A1A10] shadow-[0_25px_60px_-15px_rgba(30,15,8,0.55)] rounded-3xl max-h-[92vh] flex flex-col">
+        <DialogContent showCloseButton={false} className="w-[100vw] h-[100vh] sm:w-[98vw] sm:h-[95vh] sm:max-w-7xl sm:max-h-[95vh] p-0 overflow-hidden border border-[#D9C19B] bg-[#FBF7F0] text-[#2A1A10] shadow-2xl rounded-none sm:rounded-3xl flex flex-col">
           {detailProduct && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 flex-1 overflow-y-auto lg:overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-12 flex-1 h-full overflow-hidden">
               {/* ==================== LEFT COLUMN: Product Visual Gallery (5 cols) ==================== */}
-              <aside className="lg:col-span-5 bg-[#F5ECE1]/60 p-6 lg:p-8 border-b lg:border-b-0 lg:border-r border-[#E8DCCF] flex flex-col justify-between">
+              <aside className="md:col-span-5 bg-[#F5ECE1]/60 p-5 md:p-6 border-b md:border-b-0 md:border-r border-[#E8DCCF] flex flex-col justify-between overflow-y-auto">
                 <div>
                   {/* Main Featured Image Canvas */}
-                  <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden shadow-lg border border-[#E8DCCF] bg-white group">
+                  <div className="relative w-full aspect-square md:aspect-[4/4.5] rounded-2xl overflow-hidden shadow-md border border-[#E8DCCF] bg-white group">
                     <img
                       src={detailProduct.imageUrl}
                       alt={detailProduct.name}
                       className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
                     />
                     {/* Badges Overlay */}
-                    <div className="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
-                      <span className="bg-[#3D2214]/90 backdrop-blur-md text-white text-xs font-semibold px-2.5 py-1 rounded-lg shadow-sm tracking-wide">
+                    <div className="absolute top-3 left-3 flex flex-col gap-1 items-start">
+                      <span className="bg-[#3D2214]/95 backdrop-blur-md text-white text-xs font-semibold px-2.5 py-1 rounded-lg shadow-sm tracking-wide">
                         {detailProduct.categoryName}
                       </span>
-                      <span className="bg-emerald-700/90 backdrop-blur-md text-white text-[11px] font-medium px-2 py-0.5 rounded-md shadow-sm flex items-center gap-1">
+                      <span className="bg-emerald-700/95 backdrop-blur-md text-white text-[10px] font-medium px-2 py-0.5 rounded-md shadow-sm flex items-center gap-1">
                         ✓ 100% Asli Batik
                       </span>
                     </div>
                   </div>
 
                   {/* Detail Motif & Jahitan Box */}
-                  <div className="mt-4 p-4 bg-white/90 rounded-2xl border border-[#E8DCCF] shadow-xs space-y-2">
+                  <div className="mt-3 p-3 bg-white/95 rounded-2xl border border-[#E8DCCF] shadow-xs space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="w-1.5 h-3.5 bg-[#9E4A28] rounded-full"></span>
+                      <span className="w-1.5 h-3 bg-[#9E4A28] rounded-full"></span>
                       <h3 className="text-xs font-bold text-[#2A1A10] uppercase tracking-wider">Detail Motif & Jahitan</h3>
                     </div>
-                    <p className="text-xs text-[#7A695E] leading-relaxed">
+                    <p className="text-[11px] text-[#7A695E] leading-relaxed">
                       Dibuat secara teliti dengan motif autentik nusantara dan jahitan rapi berstandar butik siap pakai untuk kenyamanan maksimal.
                     </p>
-                    <div className="flex flex-wrap gap-1.5 pt-0.5">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-[#F5ECE1] text-[#7F3619] text-[11px] font-semibold border border-[#E8DCCF]">
-                        ✓ Motif Autentik
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-[#F5ECE1] text-[#7F3619] text-[11px] font-semibold border border-[#E8DCCF]">
-                        ✓ Kain Adem Nyaman
-                      </span>
-                    </div>
                   </div>
                 </div>
 
                 {/* Artisan Local Proof Callout */}
-                <div className="mt-6 pt-4 border-t border-[#E8DCCF] flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-amber-100/90 border border-amber-200 text-[#7F3619] flex items-center justify-center shrink-0">
-                    <ShieldCheck className="h-5 w-5" />
+                <div className="mt-3 pt-3 border-t border-[#E8DCCF] flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-amber-100/90 border border-amber-200 text-[#7F3619] flex items-center justify-center shrink-0">
+                    <ShieldCheck className="h-4 w-4" />
                   </div>
-                  <div className="text-xs">
-                    <span className="font-bold text-[#2A1A10] block">Karya Pengrajin Lokal Bantul</span>
-                    <span className="text-[#7A695E]">Koleksi pilihan langsung dari Yogyakarta</span>
+                  <div className="text-[11px]">
+                    <span className="font-bold text-[#2A1A10] block leading-tight">Karya Pengrajin Lokal Bantul</span>
+                    <span className="text-[#7A695E] text-[10px]">Koleksi pilihan langsung dari Yogyakarta</span>
                   </div>
                 </div>
               </aside>
 
               {/* ==================== RIGHT COLUMN: Product Config & Purchase (7 cols) ==================== */}
-              <div className="lg:col-span-7 flex flex-col justify-between bg-[#FBF7F0] overflow-y-auto custom-scrollbar">
-                {/* Modal Content Body */}
-                <div className="p-6 lg:p-8 space-y-6">
+              <div className="md:col-span-7 flex flex-col justify-between bg-[#FBF7F0] h-full overflow-hidden">
+                {/* Modal Header & Content Body (Scrollable inside right column) */}
+                <div className="p-5 md:p-6 space-y-3.5 overflow-y-auto flex-1">
                   {/* Top Header: Badge, Code & Close Button */}
                   <header className="flex items-start justify-between gap-4">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -524,7 +518,7 @@ export function CatalogPreviewSection() {
                     <button
                       aria-label="Tutup Detail Produk"
                       onClick={() => setDetailProduct(null)}
-                      className="w-9 h-9 rounded-full bg-[#F5ECE1] hover:bg-[#E8DCCF] text-[#3D2214] flex items-center justify-center transition-colors focus:outline-none"
+                      className="w-9 h-9 rounded-full bg-[#F5ECE1] hover:bg-[#E8DCCF] text-[#3D2214] flex items-center justify-center transition-colors focus:outline-none shrink-0"
                       type="button"
                     >
                       <X className="h-5 w-5" />
@@ -532,16 +526,16 @@ export function CatalogPreviewSection() {
                   </header>
 
                   {/* Title, Price & Stock Status */}
-                  <section className="space-y-3">
-                    <h1 className="font-serif text-3xl lg:text-4xl font-bold text-[#2A1A10] tracking-tight">
+                  <section className="space-y-1.5">
+                    <h1 className="font-serif text-2xl md:text-3xl font-bold text-[#2A1A10] tracking-tight leading-tight">
                       {detailProduct.name}
                     </h1>
-                    <div className="flex flex-wrap items-center gap-3.5 pt-1">
-                      <span className="text-3xl font-extrabold text-[#9E4A28] tracking-tight">
+                    <div className="flex flex-wrap items-center gap-3 pt-1">
+                      <span className="text-2xl md:text-3xl font-extrabold text-[#9E4A28] tracking-tight">
                         {formatRupiah(detailProduct.price)}
                       </span>
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-orange-100/70 border border-orange-200 text-[#7F3619] text-xs font-semibold">
-                        <AlertCircle className="h-4 w-4 text-[#9E4A28]" />
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-orange-100/70 border border-orange-200 text-[#7F3619] text-xs font-semibold">
+                        <AlertCircle className="h-3.5 w-3.5 text-[#9E4A28]" />
                         <span>
                           {currentStock > 0 ? `Stok Tersedia (sisa ${currentStock})` : "Stok Habis"}
                         </span>
@@ -550,7 +544,7 @@ export function CatalogPreviewSection() {
                   </section>
 
                   {/* Product Description */}
-                  <section className="text-sm text-[#7A695E] leading-relaxed">
+                  <section className="text-xs md:text-sm text-[#7A695E] leading-relaxed">
                     <p>
                       {detailProduct.description ||
                         "Batik siap pakai berkualitas dengan motif autentik warisan leluhur. Dijahit rapi dengan pola potongan modern yang nyaman, menggunakan serat katun adem yang menyerap keringat dan tidak mudah kusut untuk acara formal maupun kasual."}
@@ -558,34 +552,34 @@ export function CatalogPreviewSection() {
                   </section>
 
                   {/* Specifications Grid: 4 Clean Desktop Cards */}
-                  <section className="bg-[#F5ECE1]/80 rounded-2xl p-4 border border-[#E8DCCF] grid grid-cols-2 gap-x-5 gap-y-3.5 text-xs lg:text-sm">
+                  <section className="bg-[#F5ECE1]/80 rounded-xl p-3 border border-[#E8DCCF] grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
                     <div>
-                      <span className="text-[#7A695E] text-xs block mb-0.5">Kategori</span>
+                      <span className="text-[#7A695E] text-[10px] block mb-0.5 uppercase tracking-wider font-medium">Kategori</span>
                       <span className="font-semibold text-[#2A1A10]">{detailProduct.categoryName}</span>
                     </div>
                     <div>
-                      <span className="text-[#7A695E] text-xs block mb-0.5">Asal Produksi</span>
+                      <span className="text-[#7A695E] text-[10px] block mb-0.5 uppercase tracking-wider font-medium">Asal Produksi</span>
                       <span className="font-semibold text-[#2A1A10]">Bantul, D.I. Yogyakarta</span>
                     </div>
                     <div>
-                      <span className="text-[#7A695E] text-xs block mb-0.5">Bahan Kain</span>
+                      <span className="text-[#7A695E] text-[10px] block mb-0.5 uppercase tracking-wider font-medium">Bahan Kain</span>
                       <span className="font-semibold text-[#2A1A10]">Katun Primissima Halus</span>
                     </div>
                     <div>
-                      <span className="text-[#7A695E] text-xs block mb-0.5">Kualitas Jahitan</span>
+                      <span className="text-[#7A695E] text-[10px] block mb-0.5 uppercase tracking-wider font-medium">Kualitas Jahitan</span>
                       <span className="font-semibold text-[#2A1A10]">Standar Butik Siap Pakai</span>
                     </div>
                   </section>
 
                   {/* Divider */}
-                  <hr className="border-[#E8DCCF]/80" />
+                  <hr className="border-[#E8DCCF]/80 my-2" />
 
                   {/* ==================== SIZE SELECTION SECTION ==================== */}
                   {detailProduct.variants.length > 0 && (
-                    <section className="space-y-3.5">
+                    <section className="space-y-2.5">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1.5">
-                          <h2 className="text-xs lg:text-sm font-bold uppercase tracking-wider text-[#2A1A10]">
+                          <h2 className="text-xs font-bold uppercase tracking-wider text-[#2A1A10]">
                             Pilih Ukuran
                           </h2>
                           <span className="text-red-600 font-bold">*</span>
@@ -593,7 +587,7 @@ export function CatalogPreviewSection() {
                       </div>
 
                       {/* Size Chips Selector Grid */}
-                      <div className="grid grid-cols-5 gap-2.5">
+                      <div className="grid grid-cols-5 gap-2">
                         {detailProduct.variants.map((v) => {
                           const active = selectedVariantId === v.id;
                           const isOut = v.stock <= 0;
@@ -603,12 +597,12 @@ export function CatalogPreviewSection() {
                             return (
                               <div
                                 key={v.id}
-                                className="relative h-14 rounded-xl flex flex-col items-center justify-center border border-dashed border-stone-300 bg-stone-100 text-stone-400 select-none overflow-hidden cursor-not-allowed"
+                                className="relative h-12 rounded-xl flex flex-col items-center justify-center border border-dashed border-stone-300 bg-stone-100 text-stone-400 select-none overflow-hidden cursor-not-allowed"
                               >
-                                <span className="line-through decoration-stone-400 font-bold text-base leading-none">
+                                <span className="line-through decoration-stone-400 font-bold text-sm leading-none">
                                   {sizeLabel}
                                 </span>
-                                <span className="text-[10px] font-semibold text-red-500 bg-red-50 px-1.5 py-0.5 rounded mt-0.5">
+                                <span className="text-[9px] font-semibold text-red-500 bg-red-50 px-1 py-0.5 rounded mt-0.5">
                                   Habis
                                 </span>
                               </div>
@@ -625,19 +619,19 @@ export function CatalogPreviewSection() {
                                 className="peer sr-only"
                               />
                               <div
-                                className={`h-14 rounded-xl flex flex-col items-center justify-center border font-semibold text-sm transition-all shadow-sm ${
+                                className={`h-12 rounded-xl flex flex-col items-center justify-center border font-semibold text-sm transition-all shadow-xs ${
                                   active
-                                    ? "border-[#522E13] bg-[#522E13] text-white ring-2 ring-[#522E13]/20 shadow-md"
-                                    : "border-[#E8DCCF] bg-white/90 hover:bg-white text-[#2A1A10] hover:border-[#9E4A28]"
+                                    ? "border-[#522E13] bg-[#522E13] text-white ring-2 ring-[#522E13]/20 shadow-sm"
+                                    : "border-[#E8DCCF] bg-white/95 hover:bg-white text-[#2A1A10] hover:border-[#9E4A28]"
                                 }`}
                               >
-                                <span className="text-base font-extrabold leading-none">{sizeLabel}</span>
-                                <span className={`text-[10px] mt-1 ${active ? "text-[#E8DCCF]" : "text-[#7A695E]"}`}>
+                                <span className="text-sm font-extrabold leading-none">{sizeLabel}</span>
+                                <span className={`text-[9px] mt-0.5 ${active ? "text-[#E8DCCF]" : "text-[#7A695E]"}`}>
                                   {v.stock <= 3 ? `Sisa ${v.stock}` : "Tersedia"}
                                 </span>
                               </div>
                               {active && (
-                                <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#2A1A10] text-white rounded-full flex items-center justify-center text-xs shadow-md border-2 border-[#FBF7F0]">
+                                <div className="absolute -top-1 -right-1 w-4 h-4 bg-[#2A1A10] text-white rounded-full flex items-center justify-center text-[10px] shadow-sm border-2 border-[#FBF7F0]">
                                   ✓
                                 </div>
                               )}
@@ -648,9 +642,9 @@ export function CatalogPreviewSection() {
 
                       {/* Live Stock Micro-Feedback for Selected Size */}
                       {currentVariant && (
-                        <div className="flex items-center gap-2 pt-1 text-xs text-[#7F3619] bg-amber-50/70 border border-amber-200/60 rounded-xl px-3.5 py-2">
+                        <div className="flex items-center gap-2 text-xs text-[#7F3619] bg-amber-50/70 border border-amber-200/60 rounded-xl px-3 py-1.5">
                           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
-                          <span className="font-medium">
+                          <span className="font-medium text-[11px]">
                             Ukuran terpilih: <strong>{currentVariant.size || currentVariant.sku.split("-").pop()}</strong> • Stok tersisa <strong>{currentVariant.stock} buah</strong>
                           </span>
                         </div>
@@ -660,25 +654,25 @@ export function CatalogPreviewSection() {
                 </div>
 
                 {/* ==================== DESKTOP FOOTER / PURCHASE ACTION ROW ==================== */}
-                <footer className="bg-white/95 backdrop-blur-md px-6 lg:px-8 py-5 border-t border-[#E8DCCF] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mt-auto">
+                <footer className="bg-white/95 backdrop-blur-md px-5 md:px-6 py-3.5 border-t border-[#E8DCCF] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shrink-0">
                   {/* Left: Quantity Stepper with Subtotal Label */}
-                  <div className="flex items-center gap-3.5">
-                    <div className="flex items-center bg-[#FBF7F0] rounded-xl border border-[#E8DCCF] p-1 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center bg-[#FBF7F0] rounded-xl border border-[#E8DCCF] p-1 shadow-xs">
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
                         disabled={quantity <= 1 || currentStock <= 0}
                         onClick={() => handleQuantityChange(-1)}
-                        className="w-9 h-9 rounded-lg bg-white hover:bg-[#E8D6B5]/60 text-[#2A1A10] flex items-center justify-center font-bold transition-all disabled:opacity-40 shadow-xs"
+                        className="w-8 h-8 rounded-lg bg-white hover:bg-[#E8D6B5]/60 text-[#2A1A10] flex items-center justify-center font-bold transition-all disabled:opacity-40 shadow-xs"
                       >
-                        <Minus className="h-4 w-4" />
+                        <Minus className="h-3.5 w-3.5" />
                       </Button>
                       <input
                         type="text"
                         readOnly
                         value={quantity}
-                        className="w-11 text-center font-bold text-base bg-transparent border-0 text-[#2A1A10] focus:ring-0 p-0"
+                        className="w-10 text-center font-bold text-sm bg-transparent border-0 text-[#2A1A10] focus:ring-0 p-0"
                       />
                       <Button
                         type="button"
@@ -686,22 +680,22 @@ export function CatalogPreviewSection() {
                         size="icon"
                         disabled={quantity >= currentStock || currentStock <= 0}
                         onClick={() => handleQuantityChange(1)}
-                        className="w-9 h-9 rounded-lg bg-white hover:bg-[#E8D6B5]/60 text-[#2A1A10] flex items-center justify-center font-bold transition-all shadow-xs"
+                        className="w-8 h-8 rounded-lg bg-white hover:bg-[#E8D6B5]/60 text-[#2A1A10] flex items-center justify-center font-bold transition-all shadow-xs"
                       >
-                        <Plus className="h-4 w-4" />
+                        <Plus className="h-3.5 w-3.5" />
                       </Button>
                     </div>
 
-                    <div className="hidden sm:flex flex-col justify-center px-3.5 py-1.5 rounded-xl bg-[#F5ECE1]/80 border border-[#E8DCCF]/80 shadow-xs">
-                      <span className="text-[#7A695E] uppercase text-[10px] font-bold tracking-wider leading-none mb-0.5">Total Belanja</span>
-                      <span className="font-extrabold text-[#9E4A28] text-lg leading-tight tracking-tight">
+                    <div className="hidden sm:flex flex-col justify-center px-3 py-1 rounded-xl bg-[#F5ECE1]/80 border border-[#E8DCCF]/80 shadow-xs">
+                      <span className="text-[#7A695E] uppercase text-[9px] font-bold tracking-wider leading-none mb-0.5">Total</span>
+                      <span className="font-extrabold text-[#9E4A28] text-base leading-tight tracking-tight">
                         {formatRupiah(detailProduct.price * quantity)}
                       </span>
                     </div>
                   </div>
 
                   {/* Right: Primary CTA Button (+ Masukkan Keranjang) */}
-                  <div className="flex items-center gap-2.5 flex-1 sm:flex-initial sm:justify-end">
+                  <div className="flex items-center gap-2 flex-1 sm:flex-initial sm:justify-end">
                     <Button
                       type="button"
                       disabled={currentStock <= 0}
@@ -711,9 +705,9 @@ export function CatalogPreviewSection() {
                           setDetailProduct(null);
                         }
                       }}
-                      className="flex-1 sm:flex-initial h-12 px-6 rounded-xl bg-gradient-to-r from-[#9E4A28] to-[#7F3619] hover:from-[#7F3619] hover:to-[#3D2214] text-white font-bold text-sm flex items-center justify-center gap-2.5 shadow-lg shadow-[#9E4A28]/25 transition-all touch-scale"
+                      className="flex-1 sm:flex-initial h-11 px-5 rounded-xl bg-gradient-to-r from-[#9E4A28] to-[#7F3619] hover:from-[#7F3619] hover:to-[#3D2214] text-white font-bold text-xs md:text-sm flex items-center justify-center gap-2 shadow-md shadow-[#9E4A28]/25 transition-all touch-scale"
                     >
-                      <ShoppingCart className="h-5 w-5" />
+                      <ShoppingCart className="h-4 w-4" />
                       <span>{currentStock <= 0 ? "Stok Habis" : "+ Masukkan Keranjang"}</span>
                     </Button>
                   </div>
