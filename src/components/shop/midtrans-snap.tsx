@@ -26,15 +26,17 @@ export function MidtransSnap({ token }: { token: string }) {
   useEffect(() => {
     const script = document.createElement("script");
     script.src =
-      process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === "true"
+      process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === "true" ||
+      process.env.MIDTRANS_IS_PRODUCTION === "true"
         ? "https://app.midtrans.com/snap/snap.js"
         : "https://app.sandbox.midtrans.com/snap/snap.js";
     script.setAttribute(
       "data-client-key",
-      process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY!
+      process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || ""
     );
     script.async = true;
     document.body.appendChild(script);
+
     return () => {
       document.body.removeChild(script);
     };
@@ -66,10 +68,10 @@ export function MidtransSnap({ token }: { token: string }) {
     <Button 
       onClick={handlePay} 
       disabled={loading}
-      className="w-full bg-[#744628] hover:bg-[#5c361f] text-white"
+      className="w-full h-11 bg-[#744628] hover:bg-[#5c361f] text-white font-semibold flex items-center justify-center gap-2 rounded-lg shadow-sm"
     >
-      <CreditCard className="mr-2 h-4 w-4" />
-      {loading ? "Menyiapkan Pembayaran..." : "Bayar Sekarang"}
+      <CreditCard className="h-4 w-4" />
+      {loading ? "Menyiapkan Pembayaran..." : "Bayar Sekarang (QRIS / GoPay / VA)"}
     </Button>
   );
 }

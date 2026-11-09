@@ -11,9 +11,9 @@ export async function GET(request: Request) {
     const where: Record<string, unknown> = {};
     if (search) {
       where.OR = [
-        { orderNumber: { contains: search } },
-        { customerName: { contains: search } },
-        { customerPhone: { contains: search } },
+        { orderNumber: { contains: search, mode: "insensitive" } },
+        { customerName: { contains: search, mode: "insensitive" } },
+        { customerPhone: { contains: search, mode: "insensitive" } },
       ];
     }
     if (status) where.orderStatus = status;

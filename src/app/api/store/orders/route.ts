@@ -72,6 +72,72 @@ export async function POST(request: Request) {
 
 
 
+    // Generate Midtrans Snap token jika Midtrans dikonfigurasi
+    let snapToken: string | null = null;
+    let paymentOrderId: string | null = null;
+    if (process.env.MIDTRANS_SERVER_KEY) {
+      try {
+        const snap = new MidtransClient.Snap({
+          isProduction: process.env.MIDTRANS_IS_PRODUCTION === "true",
+          serverKey: process.env.MIDTRANS_SERVER_KEY,
+          clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || "",
+        });
+
+        const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+        const itemDetails = [
+          ...order.items.map((item) => ({
+            id: item.id,
+            price: item.price,
+            quantity: item.quantity,
+            name: item.name.slice(0, 50),
+          })),
+        ];
+
+        if (order.shippingCost > 0) {
+          itemDetails.push({
+            id: "SHIPPING",
+            price: order.shippingCost,
+            quantity: 1,
+            name: "Ongkos Kirim",
+          });
+        }
+
+        const transaction = await snap.createTransaction({
+          transaction_details: {
+            order_id: order.orderNumber,
+            gross_amount: order.total,
+          },
+          item_details: itemDetails,
+          customer_details: {
+            first_name: order.customerName,
+            email: order.customerEmail,
+            phone: order.customerPhone,
+            billing_address: {
+              address: order.address,
+              city: order.city,
+              postal_code: order.postalCode,
+              country_code: "IDN",
+            },
+          },
+          callbacks: {
+            finish: `${baseUrl}/pesanan/${order.trackingToken}`,
+            error: `${baseUrl}/pesanan/${order.trackingToken}`,
+            pending: `${baseUrl}/pesanan/${order.trackingToken}`,
+          },
+        });
+
+        snapToken = transaction.token;
+        paymentOrderId = transaction.redirect_url?.split("order_id=")[1]?.split("&")[0] || null;
+
+        await db.order.update({
+          where: { id: order.id },
+          data: { snapToken, paymentOrderId },
+        });
+      } catch (err) {
+        console.error("Gagal create snap transaction:", err);
+      }
+    }
+
     return Response.json({ orderNumber: order.orderNumber, trackingToken: order.trackingToken });
   });
 }

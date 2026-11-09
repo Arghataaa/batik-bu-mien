@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { MapPin, Package, CreditCard, Clock, CheckCircle2, Phone } from "lucide-react";
+import { MidtransSnap } from "@/components/shop/midtrans-snap";
 
 export default async function OrderPage({
   params,
@@ -138,24 +139,39 @@ export default async function OrderPage({
                   <span>Total</span>
                   <span>{formatRupiah(order.total)}</span>
                 </div>
-                <div className="pt-4">
-                  <div className="mb-3 rounded-lg bg-[#fbf6ee] p-3 text-xs text-[#775333]">
-                    <p className="font-medium">Cara Pembayaran:</p>
+                <div className="pt-4 space-y-3">
+                  <div className="rounded-xl border border-[#e6d4bd] bg-white p-4 text-center space-y-3 shadow-sm">
+                    <p className="text-xs font-bold uppercase tracking-wider text-[#744628]">Scan QRIS untuk Membayar</p>
+                    <div className="mx-auto w-60 h-60 rounded-xl overflow-hidden border border-[#eee1d2] bg-white p-3 flex items-center justify-center shadow-inner">
+                      <img 
+                        src="/qris-toko.png" 
+                        alt="QRIS Batik Bu Mien" 
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <div className="text-xs text-[#775333] space-y-1">
+                      <p className="font-semibold">Scan pakai GoPay, BCA, DANA, OVO, atau m-Banking</p>
+                      <p>Total Tagihan: <span className="font-bold text-[#392719]">{formatRupiah(order.total)}</span></p>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg bg-[#fbf6ee] p-3 text-xs text-[#775333]">
+                    <p className="font-medium">Konfirmasi Setelah Transfer:</p>
                     <p className="mt-1">
-                      Transfer ke Rekening: <span className="font-semibold">BCA a.n. Batik Bu Mien</span> atau gunakan QRIS
+                      Kirim screenshot bukti transfer ke WhatsApp admin beserta nomor pesanan <span className="font-semibold">{order.orderNumber}</span>.
                     </p>
                   </div>
                   <a
-                    href={`https://wa.me/6285156468910?text=${encodeURIComponent(`Halo, saya ingin konfirmasi pembayaran order ${order.orderNumber}.\n\nTotal yang harus dibayar: ${formatRupiah(order.total)}\n\nSaya sudah melakukan transfer.`)}`}
+                    href={`https://wa.me/6285156468910?text=${encodeURIComponent(`Halo min, saya sudah transfer pembayaran QRIS untuk order ${order.orderNumber} sebesar ${formatRupiah(order.total)}.\n\nBerikut bukti transfernya:`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#25D366] px-4 font-semibold text-white hover:bg-[#20bd5a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2"
+                    className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#25D366] px-4 font-semibold text-white hover:bg-[#20bd5a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2"
                   >
                     <Phone className="h-4 w-4" />
-                    Konfirmasi via WhatsApp
+                    Kirim Bukti Transfer via WhatsApp
                   </a>
-                  <p className="mt-2 text-center text-xs text-muted-foreground">
-                    Tombol di atas akan membuka WhatsApp dengan pesan otomatis
+                  <p className="text-center text-xs text-muted-foreground">
+                    Admin akan langsung memproses pesanan Anda setelah dikonfirmasi
                   </p>
                 </div>
               </CardContent>

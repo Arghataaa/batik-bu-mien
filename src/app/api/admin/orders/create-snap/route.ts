@@ -50,7 +50,7 @@ export async function POST(request: Request) {
           address: order.address,
           city: order.city,
           postal_code: order.postalCode,
-          country_code: "ID",
+          country_code: "IDN",
         },
       },
       callbacks: {

@@ -388,18 +388,27 @@ export function CatalogPreviewSection() {
 
                           {p.variants.length > 0 && (
                             <div className="mt-2.5 flex flex-wrap gap-1">
-                              {p.variants.slice(0, 5).map((v) => (
-                                <span
-                                  key={v.id}
-                                  className={`rounded border px-2 py-0.5 text-[11px] font-semibold ${
-                                    v.stock > 0
-                                      ? "border-[#D9C19B] bg-[#FAF3E5] text-[#4A2E14]"
-                                      : "border-dashed border-[#D9C19B]/60 bg-[#FAF3E5]/40 text-[#8A6B4A]/60 line-through"
-                                  }`}
-                                >
-                                  {v.size || v.sku.split("-").pop()}
-                                </span>
-                              ))}
+                              {p.variants.slice(0, 5).map((v) => {
+                                const tagLabel = v.size || v.motif || (
+                                  v.sku.endsWith("-MG") ? "Mega Mendung" :
+                                  v.sku.endsWith("-KW") ? "Kawung" :
+                                  v.sku.endsWith("-PR") ? "Parang" :
+                                  v.sku.endsWith("-DEF") ? "Standar" :
+                                  v.sku.split("-").pop()
+                                );
+                                return (
+                                  <span
+                                    key={v.id}
+                                    className={`rounded border px-2 py-0.5 text-[11px] font-semibold ${
+                                      v.stock > 0
+                                        ? "border-[#D9C19B] bg-[#FAF3E5] text-[#4A2E14]"
+                                        : "border-dashed border-[#D9C19B]/60 bg-[#FAF3E5]/40 text-[#8A6B4A]/60 line-through"
+                                    }`}
+                                  >
+                                    {tagLabel}
+                                  </span>
+                                );
+                              })}
                             </div>
                           )}
                         </div>
@@ -433,7 +442,13 @@ export function CatalogPreviewSection() {
                               }`}
                             >
                               <ShoppingCart className="h-3.5 w-3.5" />
-                              <span>{isOutOfStock ? "Habis" : "Pilih Ukuran"}</span>
+                              <span>
+                                {isOutOfStock
+                                  ? "Habis"
+                                  : p.variants.some((v) => v.size)
+                                  ? "Pilih Ukuran"
+                                  : "Pilih Motif"}
+                              </span>
                             </Button>
                           </div>
                         </div>
@@ -580,26 +595,32 @@ export function CatalogPreviewSection() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1.5">
                           <h2 className="text-xs font-bold uppercase tracking-wider text-[#2A1A10]">
-                            Pilih Ukuran
+                            {detailProduct.variants.some((v) => v.size) ? "Pilih Ukuran" : "Pilih Motif"}
                           </h2>
                           <span className="text-red-600 font-bold">*</span>
                         </div>
                       </div>
 
                       {/* Size Chips Selector Grid */}
-                      <div className="grid grid-cols-5 gap-2">
+                      <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
                         {detailProduct.variants.map((v) => {
                           const active = selectedVariantId === v.id;
                           const isOut = v.stock <= 0;
-                          const sizeLabel = v.size || v.sku.split("-").pop() || "S";
+                          const sizeLabel = v.size || v.motif || (
+                            v.sku.endsWith("-MG") ? "Mega Mendung" :
+                            v.sku.endsWith("-KW") ? "Kawung" :
+                            v.sku.endsWith("-PR") ? "Parang" :
+                            v.sku.endsWith("-DEF") ? "Standar" :
+                            v.sku.split("-").pop() || "Standar"
+                          );
 
                           if (isOut) {
                             return (
                               <div
                                 key={v.id}
-                                className="relative h-12 rounded-xl flex flex-col items-center justify-center border border-dashed border-stone-300 bg-stone-100 text-stone-400 select-none overflow-hidden cursor-not-allowed"
+                                className="relative h-12 rounded-xl flex flex-col items-center justify-center border border-dashed border-stone-300 bg-stone-100 text-stone-400 select-none overflow-hidden cursor-not-allowed px-1"
                               >
-                                <span className="line-through decoration-stone-400 font-bold text-sm leading-none">
+                                <span className="line-through decoration-stone-400 font-bold text-xs text-center line-clamp-1 leading-none">
                                   {sizeLabel}
                                 </span>
                                 <span className="text-[9px] font-semibold text-red-500 bg-red-50 px-1 py-0.5 rounded mt-0.5">
@@ -619,13 +640,13 @@ export function CatalogPreviewSection() {
                                 className="peer sr-only"
                               />
                               <div
-                                className={`h-12 rounded-xl flex flex-col items-center justify-center border font-semibold text-sm transition-all shadow-xs ${
+                                className={`h-12 rounded-xl flex flex-col items-center justify-center border font-semibold text-xs transition-all shadow-xs px-1 ${
                                   active
                                     ? "border-[#522E13] bg-[#522E13] text-white ring-2 ring-[#522E13]/20 shadow-sm"
                                     : "border-[#E8DCCF] bg-white/95 hover:bg-white text-[#2A1A10] hover:border-[#9E4A28]"
                                 }`}
                               >
-                                <span className="text-sm font-extrabold leading-none">{sizeLabel}</span>
+                                <span className="text-xs font-extrabold leading-none text-center line-clamp-1">{sizeLabel}</span>
                                 <span className={`text-[9px] mt-0.5 ${active ? "text-[#E8DCCF]" : "text-[#7A695E]"}`}>
                                   {v.stock <= 3 ? `Sisa ${v.stock}` : "Tersedia"}
                                 </span>
@@ -645,7 +666,15 @@ export function CatalogPreviewSection() {
                         <div className="flex items-center gap-2 text-xs text-[#7F3619] bg-amber-50/70 border border-amber-200/60 rounded-xl px-3 py-1.5">
                           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
                           <span className="font-medium text-[11px]">
-                            Ukuran terpilih: <strong>{currentVariant.size || currentVariant.sku.split("-").pop()}</strong> • Stok tersisa <strong>{currentVariant.stock} buah</strong>
+                            {currentVariant.size ? "Ukuran" : "Motif"} terpilih: <strong>{
+                              currentVariant.size || currentVariant.motif || (
+                                currentVariant.sku.endsWith("-MG") ? "Mega Mendung" :
+                                currentVariant.sku.endsWith("-KW") ? "Kawung" :
+                                currentVariant.sku.endsWith("-PR") ? "Parang" :
+                                currentVariant.sku.endsWith("-DEF") ? "Standar" :
+                                currentVariant.sku.split("-").pop()
+                              )
+                            }</strong> • Stok tersisa <strong>{currentVariant.stock} buah</strong>
                           </span>
                         </div>
                       )}

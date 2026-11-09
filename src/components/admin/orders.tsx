@@ -38,7 +38,11 @@ export function OrdersSection() {
     fetch(`/api/admin/orders?search=${search}`)
       .then((r) => r.json())
       .then((data) => {
-        setOrders(data);
+        setOrders(Array.isArray(data) ? data : []);
+        setLoading(false);
+      })
+      .catch(() => {
+        setOrders([]);
         setLoading(false);
       });
   }, [search]);

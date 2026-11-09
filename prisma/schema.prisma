@@ -150,6 +150,10 @@ model Order {
   paymentStatus  String               @default("PENDING_PAYMENT")
   orderStatus    String               @default("WAITING_PAYMENT")
   trackingToken  String               @unique @default(cuid())
+  snapToken      String?
+  paymentOrderId String?
+  courier        String?
+  trackingNumber String?
   adminNote      String?
   createdAt      DateTime             @default(now())
   updatedAt      DateTime             @updatedAt
