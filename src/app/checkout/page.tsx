@@ -9,7 +9,17 @@ import { useCart } from "@/components/shop/cart-provider";
 import { formatRupiah } from "@/lib/format";
 import { LandingNavbar } from "@/components/landing/landing-navbar";
 import { LandingFooter } from "@/components/landing/landing-footer";
-import { MapPin, PackageCheck, ShoppingBag, UserRound } from "lucide-react";
+import { MapPin, PackageCheck, ShoppingBag, UserRound, X } from "lucide-react";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type FieldProps = {
   name: string;
@@ -43,6 +53,7 @@ export default function CheckoutPage() {
   const [draftReady, setDraftReady] = useState(false);
   const [shippingCost, setShippingCost] = useState(0);
   const [shippingZone, setShippingZone] = useState("");
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -249,7 +260,7 @@ export default function CheckoutPage() {
                     <span className="flex items-center gap-2"><PackageCheck className="h-4 w-4 animate-pulse" />Menyiapkan pembayaran...</span>
                   ) : "Buat Pesanan dan Bayar"}
                 </Button>
-                <Button type="button" variant="ghost" disabled={loading} onClick={() => { if (window.confirm("Batalkan pengisian checkout? Data form akan dihapus, keranjang tetap tersimpan.")) { localStorage.removeItem("batik-checkout-draft"); formRef.current?.reset(); } }} className="mt-1 w-full text-[#754526] hover:bg-[#f4e7d6]">Batalkan Checkout</Button>
+                <Button type="button" variant="ghost" disabled={loading} onClick={() => setIsCancelDialogOpen(true)} className="mt-1 w-full text-[#754526] hover:bg-[#f4e7d6]">Batalkan Checkout</Button>
                 {loading && (
                   <p className="mt-2 text-center text-xs text-muted-foreground animate-pulse">
                     Pesanan Anda sedang diproses. Mohon tunggu sebentar.
@@ -262,6 +273,36 @@ export default function CheckoutPage() {
         </div>
       </main>
       <LandingFooter />
+
+      {/* Custom Styled AlertDialog matching Batik Bu Mien Theme */}
+      <AlertDialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
+        <AlertDialogContent className="border border-[#D9C19B] bg-[#FFF9EE] text-[#2B1A0E] shadow-2xl rounded-2xl max-w-md p-6">
+          <AlertDialogHeader className="space-y-2">
+            <AlertDialogTitle className="font-serif text-xl font-bold text-[#6B3F1D]">
+              Batalkan Pengisian Checkout?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-[#8A6B4A] leading-relaxed">
+              Data form yang sudah Anda isi akan dihapus, namun keranjang belanja Anda akan tetap tersimpan dengan aman.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-4 flex gap-2 sm:justify-end">
+            <AlertDialogCancel className="rounded-xl border-[#D9C19B] bg-white text-[#4A2E14] hover:bg-[#FAF3E5] hover:text-[#2B1A0E]">
+              Lanjutkan Mengisi
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                localStorage.removeItem("batik-checkout-draft");
+                formRef.current?.reset();
+                setIsCancelDialogOpen(false);
+                router.push("/keranjang");
+              }}
+              className="rounded-xl bg-[#B33A2A] text-white hover:bg-[#962E21]"
+            >
+              Ya, Batalkan
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
