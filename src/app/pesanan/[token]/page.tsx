@@ -2,12 +2,11 @@ import { db } from "@/lib/db";
 import { formatRupiah } from "@/lib/format";
 import { LandingNavbar } from "@/components/landing/landing-navbar";
 import { LandingFooter } from "@/components/landing/landing-footer";
-import { MidtransSnap } from "@/components/shop/midtrans-snap";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { MapPin, Package, CreditCard, Clock, CheckCircle2 } from "lucide-react";
+import { MapPin, Package, CreditCard, Clock, CheckCircle2, Phone } from "lucide-react";
 
 export default async function OrderPage({
   params,
@@ -21,6 +20,10 @@ export default async function OrderPage({
       items: true,
       statusHistory: { orderBy: { createdAt: "asc" } },
     },
+  });
+
+  const storeInfo = await db.shippingSetting.findUnique({
+    where: { id: "default" },
   });
 
   if (!order)
@@ -122,18 +125,39 @@ export default async function OrderPage({
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Ongkir</span>
-                  <span>{order.shippingCost > 0 ? formatRupiah(order.shippingCost) : "Dihitung"}</span>
+                  <span>{order.shippingZone ? formatRupiah(order.shippingCost) : "-"}</span>
                 </div>
+                {order.shippingZone && (
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>Zona:</span>
+                    <span>{order.shippingZone}</span>
+                  </div>
+                )}
                 <Separator />
                 <div className="flex justify-between font-bold text-[#392719]">
                   <span>Total</span>
                   <span>{formatRupiah(order.total)}</span>
                 </div>
-                {order.snapToken && order.shippingCost > 0 && (
-                   <div className="pt-4">
-                      <MidtransSnap token={order.snapToken} />
-                   </div>
-                )}
+                <div className="pt-4">
+                  <div className="mb-3 rounded-lg bg-[#fbf6ee] p-3 text-xs text-[#775333]">
+                    <p className="font-medium">Cara Pembayaran:</p>
+                    <p className="mt-1">
+                      Transfer ke Rekening: <span className="font-semibold">BCA a.n. Batik Bu Mien</span> atau gunakan QRIS
+                    </p>
+                  </div>
+                  <a
+                    href={`https://wa.me/6285156468910?text=${encodeURIComponent(`Halo, saya ingin konfirmasi pembayaran order ${order.orderNumber}.\n\nTotal yang harus dibayar: ${formatRupiah(order.total)}\n\nSaya sudah melakukan transfer.`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#25D366] px-4 font-semibold text-white hover:bg-[#20bd5a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2"
+                  >
+                    <Phone className="h-4 w-4" />
+                    Konfirmasi via WhatsApp
+                  </a>
+                  <p className="mt-2 text-center text-xs text-muted-foreground">
+                    Tombol di atas akan membuka WhatsApp dengan pesan otomatis
+                  </p>
+                </div>
               </CardContent>
             </Card>
               <Card>

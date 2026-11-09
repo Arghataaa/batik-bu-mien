@@ -41,6 +41,8 @@ export default function CheckoutPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [draftReady, setDraftReady] = useState(false);
+  const [shippingCost, setShippingCost] = useState(0);
+  const [shippingZone, setShippingZone] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -51,8 +53,22 @@ export default function CheckoutPage() {
       if (raw) {
         const draft = JSON.parse(raw) as Record<string, string>;
         Object.entries(draft).forEach(([name, value]) => {
-          const field = form.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement | null;
-          if (field && typeof value === "string") field.value = value;
+          const field = form.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null;
+          if (field && typeof value === "string") {
+            if (field.tagName === "SELECT") {
+              (field as HTMLSelectElement).value = value;
+              if (name === "shippingZone") {
+                setShippingZone(value);
+                let cost = 0;
+                if (value === "DIY & JATENG") cost = 15000;
+                else if (value === "JAWA LAINNYA") cost = 22000;
+                else if (value === "LUAR JAWA") cost = 35000;
+                setShippingCost(cost);
+              }
+            } else {
+              field.value = value;
+            }
+          }
         });
       }
     } catch {
@@ -82,11 +98,20 @@ export default function CheckoutPage() {
 
     try {
       const form = new FormData(e.currentTarget);
+      const shippingZone = form.get("shippingZone") as string;
+      let shippingCost = 0;
+      if (shippingZone === "DIY & JATENG") shippingCost = 15000;
+      else if (shippingZone === "JAWA LAINNYA") shippingCost = 22000;
+      else if (shippingZone === "LUAR JAWA") shippingCost = 35000;
+      else if (shippingZone === "AMBIL TOKO") shippingCost = 0;
+
       const res = await fetch("/api/store/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...Object.fromEntries(form),
+          shippingZone,
+          shippingCost,
           items: cart.items.map((item) => ({
             productId: item.productId,
             variantId: item.variantId,
@@ -181,9 +206,42 @@ export default function CheckoutPage() {
                 <div className="my-4 border-t border-dashed border-[#e6d4bd]" />
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between text-muted-foreground"><span>Subtotal produk</span><span className="text-foreground">{formatRupiah(cart.total)}</span></div>
-                  <div className="flex justify-between text-muted-foreground"><span>Ongkos kirim</span><span className="text-[#a7683d]">Dikonfirmasi admin</span></div>
-                  <p className="rounded-lg bg-[#fbf6ee] p-2.5 text-xs leading-relaxed text-[#775333]">Ongkos kirim akan dikonfirmasi oleh admin setelah pesanan dibuat. Pembayaran dibuka setelah total final tersedia.</p>
-                  <div className="flex justify-between border-t border-[#eee1d2] pt-3 font-semibold text-[#392719]"><span>Total sementara</span><span>{formatRupiah(cart.total)}</span></div>
+                  <div className="space-y-3">
+                    <label className="grid gap-1.5 text-sm font-medium">
+                      <span className="text-muted-foreground">Zona Pengiriman</span>
+                      <select
+                        name="shippingZone"
+                        required
+                        value={shippingZone}
+                        onChange={(e) => {
+                          setShippingZone(e.target.value);
+                          let cost = 0;
+                          if (e.target.value === "DIY & JATENG") cost = 15000;
+                          else if (e.target.value === "JAWA LAINNYA") cost = 22000;
+                          else if (e.target.value === "LUAR JAWA") cost = 35000;
+                          else if (e.target.value === "AMBIL TOKO") cost = 0;
+                          setShippingCost(cost);
+                        }}
+                        className="h-10 w-full rounded-lg border-[#e6d4bd] bg-white px-3 text-sm focus-visible:border-[#8b542e] focus-visible:ring-[#8b542e]/20"
+                      >
+                        <option value="" disabled>Pilih zona pengiriman</option>
+                        <option value="DIY & JATENG">DIY Yogyakarta & Jawa Tengah (Rp 15.000)</option>
+                        <option value="JAWA LAINNYA">Jawa Lainnya (Rp 22.000)</option>
+                        <option value="LUAR JAWA">Luar Pulau Jawa (Rp 35.000)</option>
+                        <option value="AMBIL TOKO">Ambil Langsung di Toko (Gratis)</option>
+                      </select>
+                    </label>
+                    {shippingZone && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Ongkos kirim</span>
+                        <span className="font-semibold text-[#a7683d]">{formatRupiah(shippingCost)}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex justify-between border-t border-[#eee1d2] pt-3 font-semibold text-[#392719]">
+                    <span>Total</span>
+                    <span>{formatRupiah(cart.total + shippingCost)}</span>
+                  </div>
                 </div>
                 {error && <p role="alert" className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
                 <Button type="submit" disabled={loading || !cart.items.length} className="mt-4 h-11 w-full rounded-lg bg-[#744628] font-semibold text-white hover:bg-[#5c361f] disabled:opacity-60">

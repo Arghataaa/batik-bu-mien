@@ -103,7 +103,7 @@ async function main() {
     },
     {
       name: "Daster Batik Rumahan",
-      sku: "DST-001",
+      sku: "DST-001",  
       categorySlug: "daster-batik",
       price: rupiah(85000),
       cost: rupiah(48000),

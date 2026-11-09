@@ -63,28 +63,14 @@ export async function POST(request: Request) {
       const PACKING_WEIGHT = 100; // Konfigurasi berat kemasan (gram)
       const totalWeight = totalWeightItems + PACKING_WEIGHT;
       const subtotal = items.reduce((n, i) => n + i.subtotal, 0);
-      const shippingCost = 0;
-      const total = subtotal;
-      const created = await tx.order.create({ data: { orderNumber: `BBM-${Date.now()}`, customerName: body.customerName!.trim(), customerPhone: body.customerPhone!.trim(), customerEmail: body.customerEmail!.trim().toLowerCase(), province: body.province!.trim(), city: body.city!.trim(), district: body.district!.trim(), village: body.village!.trim(), postalCode: body.postalCode!.trim(), address: body.address!.trim(), note: body.note?.trim() || null, subtotal, shippingCost, discount: 0, total, totalWeight, paymentStatus: "PENDING_SHIPPING", orderStatus: "WAITING_SHIPPING_CONFIRMATION", items: { create: items }, statusHistory: { create: { status: "WAITING_PAYMENT", note: "Pesanan diterima. Menunggu admin konfirmasi ongkos kirim." } } } });
+      const shippingCost = body.shippingCost || 0;
+      const shippingZone = body.shippingZone || undefined;
+      const total = subtotal + shippingCost - (body.discount || 0);
+      const created = await tx.order.create({ data: { orderNumber: `BBM-${Date.now()}`, customerName: body.customerName!.trim(), customerPhone: body.customerPhone!.trim(), customerEmail: body.customerEmail!.trim().toLowerCase(), province: body.province!.trim(), city: body.city!.trim(), district: body.district!.trim(), village: body.village!.trim(), postalCode: body.postalCode!.trim(), address: body.address!.trim(), note: body.note?.trim() || null, subtotal, shippingCost, shippingZone, discount: body.discount || 0, total, totalWeight, paymentMethod: "CASH", paymentStatus: "PENDING_PAYMENT", orderStatus: "WAITING_PAYMENT", items: { create: items }, statusHistory: { create: { status: "WAITING_PAYMENT", note: "Pesanan diterima. Menunggu pembayaran." } } } });
       return created;
     }, { maxWait: 15000, timeout: 30000 });
 
-    import("@/lib/telegram").then(({ sendTelegramMessage }) => {
-      const msg = `<b>Pesanan Baru Masuk!</b>\n\n` +
-        `No Order: <code>${order.orderNumber}</code>\n` +
-        `Nama: ${order.customerName}\n` +
-        `No Telepon: ${order.customerPhone}\n\n` +
-        `<b>Alamat Pengiriman:</b>\n` +
-        `${order.address}\n` +
-        `Kel/Desa: ${order.village}\n` +
-        `Kecamatan: ${order.district}\n` +
-        `Kota/Kab: ${order.city}\n` +
-        `Provinsi: ${order.province}\n` +
-        `Kode Pos: ${order.postalCode}\n\n` +
-        `Subtotal Produk: ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(order.subtotal)}\n\n` +
-        `Balas dengan format:\n<code>/ongkir ${order.orderNumber}</code>`;
-      sendTelegramMessage(msg);
-    });
+
 
     return Response.json({ orderNumber: order.orderNumber, trackingToken: order.trackingToken });
   });

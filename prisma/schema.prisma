@@ -142,17 +142,14 @@ model Order {
   note           String?
   subtotal       Int
   shippingCost   Int                  @default(0)
+  shippingZone   String?
   discount       Int                  @default(0)
   total          Int
   totalWeight    Int                  @default(250)
-  paymentMethod  String               @default("MIDTRANS")
-  paymentStatus  String               @default("PENDING_SHIPPING")
-  orderStatus    String               @default("WAITING_SHIPPING_CONFIRMATION")
-  paymentOrderId String?              @unique
-  snapToken      String?
+  paymentMethod  String               @default("CASH")
+  paymentStatus  String               @default("PENDING_PAYMENT")
+  orderStatus    String               @default("WAITING_PAYMENT")
   trackingToken  String               @unique @default(cuid())
-  courier        String?
-  trackingNumber String?
   adminNote      String?
   createdAt      DateTime             @default(now())
   updatedAt      DateTime             @updatedAt

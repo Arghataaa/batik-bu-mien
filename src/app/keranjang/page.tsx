@@ -132,7 +132,7 @@ export default function CartPage() {
               </div>
 
               <p className="text-xs text-[#8A6B4A] leading-relaxed bg-[#FAF3E5] p-3 rounded-lg">
-                Biaya pengiriman dihitung secara manual dan dikonfirmasi admin via WhatsApp / Telegram sebelum pembayaran.
+                Biaya pengiriman dipilih saat checkout berdasarkan zona wilayah. Total harga (produk + ongkir) langsung terlihat di halaman checkout.
               </p>
 
               <Link href="/checkout" className="block">
