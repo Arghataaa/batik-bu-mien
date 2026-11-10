@@ -17,6 +17,7 @@ import { CartDrawer } from "@/components/shop/cart-drawer";
 const links = [
   { label: "Beranda", href: "/#top" },
   { label: "Katalog", href: "/#katalog" },
+  { label: "Lacak Pesanan", href: "/cek-pesanan" },
   { label: "Cerita Kami", href: "/#cerita" },
   { label: "Kontak", href: "/#kontak" },
 ];

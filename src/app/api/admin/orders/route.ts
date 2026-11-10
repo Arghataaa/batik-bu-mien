@@ -33,7 +33,7 @@ export async function GET(request: Request) {
 export async function PATCH(request: Request) {
   return apiRun(async () => {
     const body = await request.json();
-    const { orderId, shippingCost, orderStatus, courier, trackingNumber, adminNote } = body;
+    const { orderId, shippingCost, paymentStatus, orderStatus, courier, trackingNumber, adminNote } = body;
 
     if (!orderId) throw new Error("Order ID diperlukan");
 
@@ -43,6 +43,7 @@ export async function PATCH(request: Request) {
     const updates: Record<string, unknown> = {};
     if (shippingCost !== undefined) updates.shippingCost = shippingCost;
     if (shippingCost !== undefined) updates.total = order.subtotal + shippingCost - order.discount;
+    if (paymentStatus) updates.paymentStatus = paymentStatus;
     if (orderStatus) updates.orderStatus = orderStatus;
     if (courier) updates.courier = courier;
     if (trackingNumber) updates.trackingNumber = trackingNumber;

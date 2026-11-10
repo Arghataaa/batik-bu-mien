@@ -151,7 +151,22 @@ export function OrdersSection() {
                     />
                   </div>
                   <div>
-                    <label className="text-sm">Status Pesanan</label>
+                    <label className="text-sm font-medium">Status Pembayaran</label>
+                    <select
+                      className="w-full border rounded p-2 text-sm"
+                      value={editData.paymentStatus || order.paymentStatus}
+                      onChange={(e) =>
+                        setEditData({ ...editData, paymentStatus: e.target.value })
+                      }
+                    >
+                      <option value="PENDING_PAYMENT">Menunggu Pembayaran (Pending)</option>
+                      <option value="PAID">Lunas (Paid)</option>
+                      <option value="FAILED">Gagal (Failed)</option>
+                      <option value="REFUNDED">Dikembalikan (Refunded)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Status Pesanan</label>
                     <select
                       className="w-full border rounded p-2 text-sm"
                       value={editData.orderStatus || order.orderStatus}
@@ -160,6 +175,7 @@ export function OrdersSection() {
                       }
                     >
                       <option value="WAITING_SHIPPING_CONFIRMATION">Menunggu Konfirmasi Ongkir</option>
+                      <option value="WAITING_PAYMENT">Menunggu Pembayaran</option>
                       <option value="PROCESSING">Diproses</option>
                       <option value="PACKED">Dikemas</option>
                       <option value="SHIPPED">Dikirim</option>
