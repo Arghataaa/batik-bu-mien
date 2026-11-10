@@ -60,6 +60,94 @@ type DisplayProduct = {
   variants: DBVariant[];
 };
 
+const MOCK_PRODUCTS: DisplayProduct[] = [
+  {
+    id: "mock-1",
+    name: "Kemeja Batik Pria Lengan Panjang",
+    sku: "KMS-001",
+    categoryName: "Kemeja Batik",
+    description: "Kemeja batik lengan panjang berkualitas tinggi dengan motif kawung klasik khas Yogyakarta.",
+    price: 1,
+    imageUrl: "/landing/kemeja.jpeg",
+    totalStock: 30,
+    variants: [
+      { id: "v1-m", sku: "KMS-001-M", size: "M", color: "Cokelat", motif: "Kawung", stock: 15 },
+      { id: "v1-l", sku: "KMS-001-L", size: "L", color: "Cokelat", motif: "Kawung", stock: 10 },
+      { id: "v1-xl", sku: "KMS-001-XL", size: "XL", color: "Cokelat", motif: "Kawung", stock: 5 },
+    ],
+  },
+  {
+    id: "mock-2",
+    name: "Daster Batik Rumahan Adem",
+    sku: "DST-001",
+    categoryName: "Daster Batik",
+    description: "Daster katun premium yang adem dan nyaman dikenakan untuk aktivitas harian di rumah.",
+    price: 85000,
+    imageUrl: "/landing/daster.jpeg",
+    totalStock: 25,
+    variants: [
+      { id: "v2-m", sku: "DST-001-M", size: "M", color: "Terracotta", motif: "Sidomukti", stock: 15 },
+      { id: "v2-l", sku: "DST-001-L", size: "L", color: "Terracotta", motif: "Sidomukti", stock: 10 },
+    ],
+  },
+  {
+    id: "mock-3",
+    name: "Sarung Batik Tradisional Sogan",
+    sku: "SRG-001",
+    categoryName: "Sarung",
+    description: "Sarung tenun motif tradisional dengan sentuhan warna sogan khas dan bahan halus.",
+    price: 135000,
+    imageUrl: "/landing/sarung.jpeg",
+    totalStock: 20,
+    variants: [
+      { id: "v3-def", sku: "SRG-001-DEF", size: "Standar", color: "Cokelat Tua", motif: "Parang", stock: 20 },
+    ],
+  },
+  {
+    id: "mock-4",
+    name: "Sorban Batik Tulis Premium",
+    sku: "SRB-001",
+    categoryName: "Sorban",
+    description: "Sorban batik anggun dengan aksen motif mega mendung dan bahan katun pilihan.",
+    price: 75000,
+    imageUrl: "/landing/sorban.jpeg",
+    totalStock: 18,
+    variants: [
+      { id: "v4-def", sku: "SRB-001-DEF", size: "Standar", color: "Krem", motif: "Mega Mendung", stock: 18 },
+    ],
+  },
+  {
+    id: "mock-5",
+    name: "Blangkon Yogya Gajahan Pakem",
+    sku: "BLK-001",
+    categoryName: "Blangkon",
+    description: "Blangkon gaya Yogyakarta dengan lipatan rapi, kaku berkualitas, dan motif pakem.",
+    price: 95000,
+    imageUrl: "/landing/blangkon.jpeg",
+    totalStock: 12,
+    variants: [
+      { id: "v5-s", sku: "BLK-001-S", size: "S", color: "Hitam Cokelat", motif: "Gajah Mada", stock: 4 },
+      { id: "v5-m", sku: "BLK-001-M", size: "M", color: "Hitam Cokelat", motif: "Gajah Mada", stock: 5 },
+      { id: "v5-l", sku: "BLK-001-L", size: "L", color: "Hitam Cokelat", motif: "Gajah Mada", stock: 3 },
+    ],
+  },
+  {
+    id: "mock-6",
+    name: "Selop Batik Adat Jawa",
+    sku: "SLP-001",
+    categoryName: "Produk Batik Lainnya",
+    description: "Alas kaki selop adat berbalut kain batik untuk kelengkapan busana tradisional.",
+    price: 110000,
+    imageUrl: "/landing/selop.jpeg",
+    totalStock: 15,
+    variants: [
+      { id: "v6-40", sku: "SLP-001-40", size: "40", color: "Cokelat", motif: "Klasik", stock: 5 },
+      { id: "v6-41", sku: "SLP-001-41", size: "41", color: "Cokelat", motif: "Klasik", stock: 5 },
+      { id: "v6-42", sku: "SLP-001-42", size: "42", color: "Cokelat", motif: "Klasik", stock: 5 },
+    ],
+  },
+];
+
 export function CatalogPreviewSection() {
   const [products, setProducts] = useState<DisplayProduct[]>([]);
   const [loading, setLoading] = useState(true);
@@ -88,15 +176,19 @@ export function CatalogPreviewSection() {
               categoryName: p.category?.name || "Batik Siap Pakai",
               description: p.description || undefined,
               price: p.price,
-              imageUrl: p.imageUrl || "/landing/kemeja-batik.png",
+              imageUrl: p.imageUrl || "/landing/kemeja.jpeg",
               totalStock,
               variants: p.variants || [],
             };
           });
           setProducts(mapped);
+        } else {
+          setProducts(MOCK_PRODUCTS);
         }
       })
-      .catch(() => {})
+      .catch(() => {
+        setProducts(MOCK_PRODUCTS);
+      })
       .finally(() => setLoading(false));
 
     const handleCategoryEvent = (e: Event) => {

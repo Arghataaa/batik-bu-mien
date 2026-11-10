@@ -48,7 +48,7 @@ export default function CartPage() {
                     className="flex flex-col sm:flex-row sm:items-center gap-4 rounded-xl border border-[#D9C19B] bg-[#FFF9EE] p-4 shadow-xs"
                   >
                     <img
-                      src={item.imageUrl || "/landing/kemeja-batik.png"}
+                      src={item.imageUrl || "/landing/kemeja.jpeg"}
                       alt={item.name}
                       className="h-20 w-20 shrink-0 rounded-lg border border-[#D9C19B] bg-[#FAF3E5] object-cover"
                     />

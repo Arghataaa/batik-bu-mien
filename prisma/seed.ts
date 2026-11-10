@@ -80,6 +80,7 @@ async function main() {
       cost: rupiah(110000),
       hasVariants: true,
       lowStockThreshold: 5,
+      imageUrl: "/landing/kemeja.jpeg",
       variants: [
         { sku: "KMS-001-M-KW", size: "M", color: "Cokelat", motif: "Kawung", stock: 18 },
         { sku: "KMS-001-L-KW", size: "L", color: "Cokelat", motif: "Kawung", stock: 12 },
@@ -95,6 +96,7 @@ async function main() {
       cost: rupiah(95000),
       hasVariants: true,
       lowStockThreshold: 5,
+      imageUrl: "/landing/kemeja.jpeg",
       variants: [
         { sku: "KMS-002-S-MG", size: "S", color: "Krem", motif: "Mega Mendung", stock: 14 },
         { sku: "KMS-002-M-MG", size: "M", color: "Krem", motif: "Mega Mendung", stock: 7 },
@@ -109,6 +111,7 @@ async function main() {
       cost: rupiah(48000),
       hasVariants: true,
       lowStockThreshold: 8,
+      imageUrl: "/landing/daster.jpeg",
       variants: [
         { sku: "DST-001-M-SR", size: "M", color: "Cokelat Susu", motif: "Sidomukti", stock: 25 },
         { sku: "DST-001-L-SR", size: "L", color: "Cokelat Susu", motif: "Sidomukti", stock: 16 },
@@ -124,6 +127,7 @@ async function main() {
       cost: rupiah(70000),
       hasVariants: false,
       lowStockThreshold: 6,
+      imageUrl: "/landing/daster.jpeg",
       variants: [{ sku: "DST-002-DEF", stock: 11 }],
     },
     {
@@ -134,6 +138,7 @@ async function main() {
       cost: rupiah(78000),
       hasVariants: true,
       lowStockThreshold: 6,
+      imageUrl: "/landing/sarung.jpeg",
       variants: [
         { sku: "SRG-001-PR-TB", motif: "Parang", color: "Tua", stock: 20 },
         { sku: "SRG-001-KW-CR", motif: "Kawung", color: "Cokelat", stock: 13 },
@@ -148,6 +153,7 @@ async function main() {
       cost: rupiah(120000),
       hasVariants: false,
       lowStockThreshold: 4,
+      imageUrl: "/landing/sarung.jpeg",
       variants: [{ sku: "SRG-002-DEF", stock: 8 }],
     },
     {
@@ -158,6 +164,7 @@ async function main() {
       cost: rupiah(42000),
       hasVariants: true,
       lowStockThreshold: 10,
+      imageUrl: "/landing/sorban.jpeg",
       variants: [
         { sku: "SRB-001-MG", motif: "Mega Mendung", color: "Krem", stock: 30 },
         { sku: "SRB-001-PR", motif: "Parang", color: "Cokelat", stock: 5 },
@@ -172,6 +179,7 @@ async function main() {
       cost: rupiah(55000),
       hasVariants: true,
       lowStockThreshold: 4,
+      imageUrl: "/landing/blangkon.jpeg",
       variants: [
         { sku: "BLK-001-S", size: "S", motif: "Gajah Mada", stock: 10 },
         { sku: "BLK-001-M", size: "M", motif: "Gajah Mada", stock: 6 },
@@ -186,6 +194,7 @@ async function main() {
       cost: rupiah(65000),
       hasVariants: false,
       lowStockThreshold: 3,
+      imageUrl: "/landing/blangkon.jpeg",
       variants: [{ sku: "BLK-002-DEF", stock: 4 }],
     },
     {
@@ -196,6 +205,7 @@ async function main() {
       cost: rupiah(22000),
       hasVariants: false,
       lowStockThreshold: 12,
+      imageUrl: "/landing/selop.jpeg",
       variants: [{ sku: "AKS-001-DEF", stock: 22 }],
     },
     {
@@ -206,6 +216,7 @@ async function main() {
       cost: rupiah(12000),
       hasVariants: true,
       lowStockThreshold: 15,
+      imageUrl: "/landing/selop.jpeg",
       variants: [
         { sku: "AKS-002-MG", motif: "Mega Mendung", color: "Krem", stock: 40 },
         { sku: "AKS-002-KW", motif: "Kawung", color: "Cokelat", stock: 28 },

@@ -82,7 +82,7 @@ export default async function OrderPage({
                 {order.items.map((item) => (
                   <div key={item.id} className="flex gap-4 items-center">
                     <img
-                      src={productMap.get(item.productId) || "/landing/kemeja-batik.png"}
+                      src={productMap.get(item.productId) || "/landing/kemeja.jpeg"}
                       alt={item.name}
                       className="h-16 w-16 object-cover rounded-lg border border-[#eee1d2] bg-[#fbf6ee]"
                     />

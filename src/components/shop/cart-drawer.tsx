@@ -87,7 +87,7 @@ export function CartDrawer() {
                   return (
                     <article key={item.variantId} className="flex gap-3 py-4 first:pt-2">
                       <img
-                        src={item.imageUrl || "/landing/kemeja-batik.png"}
+                        src={item.imageUrl || "/landing/kemeja.jpeg"}
                         alt={item.name}
                         className="h-[76px] w-[76px] shrink-0 rounded-xl border border-[#ead8c2] bg-[#f4e6d3] object-cover"
                       />

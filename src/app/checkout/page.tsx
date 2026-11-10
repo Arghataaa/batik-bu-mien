@@ -202,7 +202,7 @@ export default function CheckoutPage() {
                   <div className="max-h-72 space-y-3 overflow-y-auto pr-1">
                     {cart.items.map((item) => (
                       <div key={item.variantId} className="flex gap-3">
-                        <img src={item.imageUrl || "/landing/kemeja-batik.png"} alt={item.name} className="h-16 w-16 shrink-0 rounded-lg border border-[#eee1d2] bg-[#fbf6ee] object-cover" />
+                        <img src={item.imageUrl || "/landing/kemeja.jpeg"} alt={item.name} className="h-16 w-16 shrink-0 rounded-lg border border-[#eee1d2] bg-[#fbf6ee] object-cover" />
                         <div className="min-w-0 flex-1">
                           <p className="line-clamp-2 text-sm font-medium text-[#392719]">{item.name}</p>
                           {item.variantLabel && <p className="mt-0.5 truncate text-xs text-muted-foreground">{item.variantLabel}</p>}
